@@ -5,15 +5,15 @@ hwclock --systohc --utc
 apt update
 apt install unzip curl supervisor iptables-persistent -y
 #优化linux参数:
-ulimit -n 204800
-echo "* soft nofile 204800" >> /etc/security/limits.conf
-echo "* hard nofile 204800" >> /etc/security/limits.conf
-echo "root soft nofile 204800" >> /etc/security/limits.conf
-echo "root hard nofile 204800" >> /etc/security/limits.conf
-echo "204800" > /proc/sys/fs/file-max
+ulimit -n 51200
+echo "* soft nofile 51200" >> /etc/security/limits.conf
+echo "* hard nofile 51200" >> /etc/security/limits.conf
+echo "root soft nofile 51200" >> /etc/security/limits.conf
+echo "root hard nofile 51200" >> /etc/security/limits.conf
+echo "102400" > /proc/sys/fs/file-max
 (cat <<EOF
-fs.file-max = 204800
-net.core.somaxconn = 2048576
+fs.file-max = 102400
+net.core.somaxconn = 1048576
 net.core.wmem_max = 16777216
 net.core.wmem_default = 131072
 net.core.rmem_max = 16777216
