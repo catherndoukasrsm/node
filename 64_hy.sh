@@ -5,15 +5,19 @@ hwclock --systohc --utc
 apt update
 apt install unzip curl supervisor iptables-persistent -y
 #优化linux参数:
-ulimit -n 51200
-echo "* soft nofile 51200" >> /etc/security/limits.conf
-echo "* hard nofile 51200" >> /etc/security/limits.conf
-echo "root soft nofile 51200" >> /etc/security/limits.conf
-echo "root hard nofile 51200" >> /etc/security/limits.conf
-echo "102400" > /proc/sys/fs/file-max
+ulimit -n 204800
+echo "* soft nofile 204800" >> /etc/security/limits.conf
+echo "* hard nofile 204800" >> /etc/security/limits.conf
+echo "root soft nofile 204800" >> /etc/security/limits.conf
+echo "root hard nofile 204800" >> /etc/security/limits.conf
+echo "204800" > /proc/sys/fs/file-max
 (cat <<EOF
-fs.file-max = 102400
-net.core.somaxconn = 1048576
+fs.file-max = 204800
+net.core.somaxconn = 2048576
+net.core.wmem_max = 16777216
+net.core.wmem_default = 131072
+net.core.rmem_max = 16777216
+net.core.rmem_default = 131072
 net.ipv4.tcp_syncookies = 1
 net.ipv4.tcp_tw_reuse = 1
 net.ipv4.tcp_timestamps = 1
@@ -23,13 +27,14 @@ net.ipv4.tcp_max_syn_backlog = 1048576
 net.ipv4.tcp_synack_retries = 1
 net.ipv4.tcp_orphan_retries = 1
 net.ipv4.ip_local_port_range = 32768 65535
-net.ipv4.tcp_mem = 88560 118080 177120
-net.ipv4.tcp_wmem = 4096 16384 8388608
-net.core.default_qdisc = fq_pie
-net.ipv4.tcp_congestion_control = bbr
+net.ipv4.tcp_rmem = 4096 131072 16777216
+net.ipv4.tcp_wmem = 4096 131072 16777216
+net.ipv4.tcp_mem = 4096 131072 16777216
+net.core.default_qdisc=fq_pie
+net.ipv4.tcp_congestion_control=bbr
 EOF
 ) > /etc/sysctl.conf
-sysctl  -p
+sysctl -p
 #下载安装hyserver
 rm -rf restarthy.* LICENSE README.md
 wget --header 'Authorization: token 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' https://raw.githubusercontent.com/catherndoukasrsm/node/main/restarthy.sh
