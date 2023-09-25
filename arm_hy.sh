@@ -49,6 +49,15 @@ autostart=true
 autorestart=true
 EOF
 ) > /etc/supervisor/conf.d/hyserver.conf
+#配置防火墙：
+iptables -A INPUT -p udp --dport 6000:21000 -j ACCEPT
+ip6tables -A INPUT -p udp --dport 6000:21000 -j ACCEPT
+iptables -t nat -A PREROUTING -p udp --dport 6000:21000 -j DNAT --to-destination :18301
+ip6tables -t nat -A PREROUTING -p udp --dport 6000:21000 -j DNAT --to-destination :18301
+iptables-save > /etc/iptables/rules.v4
+ip6tables-save > /etc/iptables/rules.v6
+#删除脚本
+rm -rf 64_hy.sh
 #安装证书签发：
 curl  https://get.acme.sh | sh -s email=keleqishui@proton.me
 #修改系统变量:
@@ -62,12 +71,6 @@ mkdir /root/.cert
 ~/.acme.sh/acme.sh --install-cert -d *.shiyuandian.shop --ecc \
 --key-file       /root/.cert/server.key  \
 --fullchain-file /root/.cert/server.crt
-rm -rf 64_hy.sh
-#配置防火墙：
-iptables -t nat -A PREROUTING -p udp --dport 6000:21000 -j DNAT --to-destination :18301
-ip6tables -t nat -A PREROUTING -p udp --dport 6000:21000 -j DNAT --to-destination :18301
-iptables-save > /etc/iptables/rules.v4
-ip6tables-save > /etc/iptables/rules.v6
 #手动执行指定节点
 #sed -i '2a\command=/root/server-hysteria --api https://ty78y3nby40auwwdsjpid0uo84ottci3.assistai.cloud --token HxUhw93lMX8Dx6aG8NSveUCt75FOcr25 --node 35' /etc/supervisor/conf.d/hyserver.conf
 #supervisorctl update && supervisorctl restart hyserver
