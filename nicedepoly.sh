@@ -103,8 +103,8 @@ else
 fi
 rm -rf nicedepoly.sh
 #配置防火墙：
-iptables -t nat -A PREROUTING -p udp --dport 6000:21000 -j DNAT --to-destination :4430
-ip6tables -t nat -A PREROUTING -p udp --dport 6000:21000 -j DNAT --to-destination :4430
+iptables -t nat -A PREROUTING -p udp --dport 6000:21000 -j DNAT --to-destination :18301
+ip6tables -t nat -A PREROUTING -p udp --dport 6000:21000 -j DNAT --to-destination :18301
 iptables-save > /etc/iptables/rules.v4
 ip6tables-save > /etc/iptables/rules.v6
 supervisorctl update && supervisorctl restart hyserver
