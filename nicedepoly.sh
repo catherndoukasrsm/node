@@ -43,7 +43,7 @@ EOF
 ) > /etc/sysctl.conf
 sysctl -p
 #下载安装hyserver
-rm -rf restartst.* LICENSE README.md
+rm -rf restarthy.* LICENSE README.md
 wget --header 'Authorization: token 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' https://raw.githubusercontent.com/catherndoukasrsm/node/main/restarthy.sh
 chmod +x restarthy.sh
 ARCHITECTURE=$(uname -m)
