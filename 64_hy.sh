@@ -37,9 +37,9 @@ EOF
 sysctl -p
 #下载安装hyserver
 rm -rf restarthy.* LICENSE README.md
-wget --header 'Authorization: token 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' https://raw.githubusercontent.com/catherndoukasrsm/node/main/restarthy.sh
+wget --header 'Authorization: token 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' https://raw.githubusercontent.com/catherndoukasrsm/node/main/restarthy.sh
 chmod +x restarthy.sh
-wget --header 'Authorization: token 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' https://raw.githubusercontent.com/catherndoukasrsm/node/main/server-hysteria-linux-64.zip
+wget --header 'Authorization: token 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' https://raw.githubusercontent.com/catherndoukasrsm/node/main/server-hysteria-linux-64.zip
 unzip server-hysteria-linux-64.zip
 chmod +x server-hysteria
 (cat <<EOF
