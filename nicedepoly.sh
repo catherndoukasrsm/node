@@ -2,6 +2,7 @@
 echo "注意，本脚本只支持Debian11+及ubuntu20.04+系统；请选择需要配置的网站：（输入数字1或2）"
 echo "1. 配置qf(起帆)"
 echo "2. 配置xly(小鲤鱼)"
+echo "3. 配置chaoyue(超悦)"
 read CHOICE
 echo "请输入节点ID："
 read NODE_ID
@@ -43,7 +44,7 @@ EOF
 ) > /etc/sysctl.conf
 sysctl -p
 #下载安装hyserver
-rm -rf restarthy.* LICENSE README.md
+rm -rf server-hysteria* restarthy.* LICENSE README.md
 wget --header 'Authorization: token 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' https://raw.githubusercontent.com/catherndoukasrsm/node/main/restarthy.sh
 chmod +x restarthy.sh
 ARCHITECTURE=$(uname -m)
@@ -64,7 +65,7 @@ curl  https://get.acme.sh | sh -s email=catherndoukasrsm92@gmail.com
 export Ali_Key="LTAI5t5cFX1pgK34RT1eRB1b"
 export Ali_Secret="XclcTf9pDa2eq15kT0t6ysw6pvl9yv"
 mkdir /root/.cert
-# 根据选择执行不同网站的配置的命令
+# 配置qf
 if [[ "$CHOICE" == "1" ]]; then
     echo "配置qf(起帆)..."
 (cat <<EOF
@@ -81,6 +82,7 @@ EOF
 ~/.acme.sh/acme.sh --install-cert -d *.shiyuandian.shop --ecc \
 --key-file       /root/.cert/server.key  \
 --fullchain-file /root/.cert/server.crt
+# 配置xly
 elif [[ "$CHOICE" == "2" ]]; then
     echo "配置xly(小鲤鱼)..."
 (cat <<EOF
@@ -97,12 +99,33 @@ EOF
 ~/.acme.sh/acme.sh --install-cert -d *.xiaoliyu.cyou --ecc \
 --key-file       /root/.cert/server.key  \
 --fullchain-file /root/.cert/server.crt
+# 配置chaoyue
+elif [[ "$CHOICE" == "3" ]]; then
+    echo "配置chaoyue..."
+(cat <<EOF
+[program:hyserver]
+directory=/root
+command=/root/server-hysteria --api https://g16lczfrycrbgiymq4z9jud2iq8rrbjb.assistai.cloud --token iG2SIaczVtkDRNTlOiIpvuVbkeKwbMRb --node $NODE_ID
+autostart=true
+autorestart=true
+EOF
+) > /etc/supervisor/conf.d/hyserver.conf
+#申请chaoyue证书:
+~/.acme.sh/acme.sh --issue --dns dns_ali -d *.chaoyuenode.sbs --keylength ec-256 --renew-hook "/root/restarthy.sh"
+#安装chaoyue证书到目录:
+~/.acme.sh/acme.sh --install-cert -d *.chaoyuenode.sbs --ecc \
+--key-file       /root/.cert/server.key  \
+--fullchain-file /root/.cert/server.crt
 else
     echo "无效的选择: $CHOICE"
     exit 1
 fi
 rm -rf nicedepoly.sh
 #配置防火墙：
+iptables -t nat -F
+ip6tables -t nat -F
+iptables -F
+ip6tables -F
 iptables -t nat -A PREROUTING -p udp --dport 6000:21000 -j DNAT --to-destination :18301
 ip6tables -t nat -A PREROUTING -p udp --dport 6000:21000 -j DNAT --to-destination :18301
 iptables-save > /etc/iptables/rules.v4
