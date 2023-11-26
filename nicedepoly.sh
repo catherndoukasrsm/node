@@ -44,14 +44,14 @@ EOF
 sysctl -p
 #下载安装hyserver
 rm -rf restarthy.* LICENSE README.md
-wget --header 'Authorization: token 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' https://raw.githubusercontent.com/catherndoukasrsm/node/main/restarthy.sh
+wget --header 'Authorization: token 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' https://raw.githubusercontent.com/catherndoukasrsm/node/main/restarthy.sh
 chmod +x restarthy.sh
 ARCHITECTURE=$(uname -m)
 if [[ "$ARCHITECTURE" == "x86_64" ]]; then
-wget --header 'Authorization: token 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' https://raw.githubusercontent.com/catherndoukasrsm/node/main/server-hysteria-linux-64.zip
+wget --header 'Authorization: token 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' https://raw.githubusercontent.com/catherndoukasrsm/node/main/server-hysteria-linux-64.zip
 unzip server-hysteria-linux-64.zip
 elif [[ "$ARCHITECTURE" == "aarch64" ]]; then
-wget --header 'Authorization: token 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' https://raw.githubusercontent.com/catherndoukasrsm/node/main/server-hysteria-linux-arm64-v8a.zip
+wget --header 'Authorization: token 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' https://raw.githubusercontent.com/catherndoukasrsm/node/main/server-hysteria-linux-arm64-v8a.zip
 unzip server-hysteria-linux-arm64-v8a.zip
 else
 echo "Unsupported architecture: $ARCHITECTURE"
