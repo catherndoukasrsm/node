@@ -35,7 +35,7 @@ chmod +x server-hysteria2
 supervisorctl restart hy2server
 ./server-hysteria2 -V
 #部署hy2
-elif [[ "$CHOICE" == "4" ]]; then
+elif [[ "$CHOICE" == "3" ]]; then
 echo "1. 配置qifan"
 echo "2. 配置xiaoliyu"
 echo "3. 配置chaoyue"
