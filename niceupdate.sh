@@ -44,7 +44,7 @@ echo "3. 配置chaoyue"
 read SITES
 echo "请输入节点ID："
 read NODE_ID
-rm -rf README.md LICENSE
+rm -rf server-hysteria2* README.md LICENSE
 if [[ "$ARCHITECTURE" == "x86_64" ]]; then
 wget --header 'Authorization: token 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' https://raw.githubusercontent.com/catherndoukasrsm/node/main/server-hysteria2-linux-64.zip
 unzip server-hysteria2-linux-64.zip
