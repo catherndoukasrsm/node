@@ -6,7 +6,7 @@ read CHOICE
 ARCHITECTURE=$(uname -m)
 #升级hy1
 if [[ "$CHOICE" == "1" ]]; then
-rm -rf server-hysteria* README.md LICENSE
+rm -rf server-hysteria README.md LICENSE
 if [[ "$ARCHITECTURE" == "x86_64" ]]; then
 wget --header 'Authorization: token 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' https://raw.githubusercontent.com/catherndoukasrsm/node/main/server-hysteria-linux-64.zip
 unzip server-hysteria-linux-64.zip

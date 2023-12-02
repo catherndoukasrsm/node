@@ -1,1 +1,2 @@
 supervisorctl restart hyserver
+supervisorctl restart hy2server
