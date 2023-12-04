@@ -8,10 +8,10 @@ echo "请输入节点ID："
 read NODE_ID
 # set timezone
 timedatectl set-timezone Asia/Hong_Kong
-service cron restart
 hwclock --systohc --utc
 apt update
-apt install unzip curl supervisor iptables-persistent -y
+apt install cron unzip curl supervisor iptables-persistent -y
+service cron restart
 #优化linux参数:
 ulimit -n 51200
 echo "* soft nofile 51200" >> /etc/security/limits.conf
