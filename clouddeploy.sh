@@ -76,8 +76,8 @@ chmod +x server-hysteria2
 #安装签发：
 curl  https://get.acme.sh | sh -s email=michael.jie.44@gmail.com
 #修改系统变量:
-export HUAWEICLOUD_Username=hid_e9u9n5jin8vanwf
-export HUAWEICLOUD_Password=6FmKVmUhsNjCtutz4xuLVDC9LzfMV4r6
+export HUAWEICLOUD_Username=acme
+export HUAWEICLOUD_Password=6FmKVmUhsNjCtutz4xu
 export HUAWEICLOUD_DomainName=hid_e9u9n5jin8vanwf
 mkdir /root/.cert
 # 配置节点id
@@ -98,7 +98,7 @@ autorestart=true
 EOF
 ) > /etc/supervisor/conf.d/hy2server.conf
 #申请证书:
-~/.acme.sh/acme.sh --issue --dns dns_huaweicloud -d *.cloudedge.cyou --keylength ec-256 --renew-hook "/root/restarthy.sh"
+~/.acme.sh/acme.sh --issue --dns dns_huaweicloud -d cloudedge.cyou -d *.cloudedge.cyou --keylength ec-256 --renew-hook "/root/restarthy.sh"
 #安装证书到目录:
 ~/.acme.sh/acme.sh --install-cert -d *.cloudedge.cyou --ecc \
 --key-file       /root/.cert/server.key  \
