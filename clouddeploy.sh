@@ -77,7 +77,7 @@ chmod +x server-hysteria2
 curl  https://get.acme.sh | sh -s email=michael.jie.44@gmail.com
 #修改系统变量:
 export HUAWEICLOUD_Username=hid_e9u9n5jin8vanwf
-export HUAWEICLOUD_Password=Afd5sC2E^M6uLcQg
+export HUAWEICLOUD_Password=6FmKVmUhsNjCtutz4xuLVDC9LzfMV4r6
 export HUAWEICLOUD_DomainName=hid_e9u9n5jin8vanwf
 mkdir /root/.cert
 # 配置节点id
