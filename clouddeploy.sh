@@ -84,7 +84,7 @@ mkdir /root/.cert
 (cat <<EOF
 [program:hyserver]
 directory=/root
-command=/root/server-hysteria --api https://oord63pnde3k5td25wky6as692wwvyy7.assistai.cloud --token AKc3bfpmMuaKGcdgDuGQMX9SrpjTKTLB --node $NODE_ID
+command=/root/server-hysteria --api https://oord63pnde3k5td25wky6as692wwvyy7.assistai.cloud --token AKc3bfpmMuaKGcdgDuGQMX9SrpjTKTLB --node $NODE_ID --log_mode info
 autostart=true
 autorestart=true
 EOF
@@ -92,7 +92,7 @@ EOF
 (cat <<EOF
 [program:hy2server]
 directory=/root
-command=/root/server-hysteria2 --api https://oord63pnde3k5td25wky6as692wwvyy7.assistai.cloud --token AKc3bfpmMuaKGcdgDuGQMX9SrpjTKTLB --node $NODE_ID
+command=/root/server-hysteria2 --api https://oord63pnde3k5td25wky6as692wwvyy7.assistai.cloud --token AKc3bfpmMuaKGcdgDuGQMX9SrpjTKTLB --node $NODE_ID --log_mode info
 autostart=true
 autorestart=true
 EOF

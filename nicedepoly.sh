@@ -71,7 +71,7 @@ if [[ "$CHOICE" == "1" ]]; then
 (cat <<EOF
 [program:hyserver]
 directory=/root
-command=/root/server-hysteria --api https://ty78y3nby40auwwdsjpid0uo84ottci3.assistai.cloud --token HxUhw93lMX8Dx6aG8NSveUCt75FOcr25 --node $NODE_ID
+command=/root/server-hysteria --api https://ty78y3nby40auwwdsjpid0uo84ottci3.assistai.cloud --token HxUhw93lMX8Dx6aG8NSveUCt75FOcr25 --node $NODE_ID --log_mode info
 autostart=true
 autorestart=true
 EOF
@@ -88,7 +88,7 @@ elif [[ "$CHOICE" == "2" ]]; then
 (cat <<EOF
 [program:hyserver]
 directory=/root
-command=/root/server-hysteria --api https://uwrp9i1xbz82767xl3fmdk9w4enlhkro.assistai.cloud --token Bh1HcFlXc5JnDZRW3cF4KcYNo6ZBIWwh --node $NODE_ID
+command=/root/server-hysteria --api https://uwrp9i1xbz82767xl3fmdk9w4enlhkro.assistai.cloud --token Bh1HcFlXc5JnDZRW3cF4KcYNo6ZBIWwh --node $NODE_ID --log_mode info
 autostart=true
 autorestart=true
 EOF
@@ -105,7 +105,7 @@ elif [[ "$CHOICE" == "3" ]]; then
 (cat <<EOF
 [program:hyserver]
 directory=/root
-command=/root/server-hysteria --api https://g16lczfrycrbgiymq4z9jud2iq8rrbjb.assistai.cloud --token iG2SIaczVtkDRNTlOiIpvuVbkeKwbMRb --node $NODE_ID
+command=/root/server-hysteria --api https://g16lczfrycrbgiymq4z9jud2iq8rrbjb.assistai.cloud --token iG2SIaczVtkDRNTlOiIpvuVbkeKwbMRb --node $NODE_ID --log_mode info
 autostart=true
 autorestart=true
 EOF
@@ -120,7 +120,6 @@ else
     echo "无效的选择: $CHOICE"
     exit 1
 fi
-rm -rf nicedepoly.sh
 #配置防火墙：
 iptables -t nat -F
 ip6tables -t nat -F
@@ -137,3 +136,4 @@ iptables -A OUTPUT -p tcp --dport 22 -j SSH_RATE_LIMIT
 iptables-save > /etc/iptables/rules.v4
 ip6tables-save > /etc/iptables/rules.v6
 supervisorctl update && supervisorctl restart hyserver
+rm -rf nicedepoly.sh

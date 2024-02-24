@@ -63,7 +63,7 @@ if [[ "$SITES" == "1" ]]; then
 (cat <<EOF
 [program:hy2server]
 directory=/root
-command=/root/server-hysteria2 --api https://ty78y3nby40auwwdsjpid0uo84ottci3.assistai.cloud --token HxUhw93lMX8Dx6aG8NSveUCt75FOcr25 --node $NODE_ID
+command=/root/server-hysteria2 --api https://ty78y3nby40auwwdsjpid0uo84ottci3.assistai.cloud --token HxUhw93lMX8Dx6aG8NSveUCt75FOcr25 --node $NODE_ID --log_mode info
 autostart=true
 autorestart=true
 EOF
@@ -74,7 +74,7 @@ elif [[ "$SITES" == "2" ]]; then
 (cat <<EOF
 [program:hy2server]
 directory=/root
-command=/root/server-hysteria2 --api https://uwrp9i1xbz82767xl3fmdk9w4enlhkro.assistai.cloud --token Bh1HcFlXc5JnDZRW3cF4KcYNo6ZBIWwh --node $NODE_ID
+command=/root/server-hysteria2 --api https://uwrp9i1xbz82767xl3fmdk9w4enlhkro.assistai.cloud --token Bh1HcFlXc5JnDZRW3cF4KcYNo6ZBIWwh --node $NODE_ID --log_mode info
 autostart=true
 autorestart=true
 EOF
@@ -85,7 +85,7 @@ elif [[ "$SITES" == "3" ]]; then
 (cat <<EOF
 [program:hy2server]
 directory=/root
-command=/root/server-hysteria2 --api https://g16lczfrycrbgiymq4z9jud2iq8rrbjb.assistai.cloud --token iG2SIaczVtkDRNTlOiIpvuVbkeKwbMRb --node $NODE_ID
+command=/root/server-hysteria2 --api https://g16lczfrycrbgiymq4z9jud2iq8rrbjb.assistai.cloud --token iG2SIaczVtkDRNTlOiIpvuVbkeKwbMRb --node $NODE_ID --log_mode info
 autostart=true
 autorestart=true
 EOF
