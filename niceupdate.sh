@@ -95,7 +95,6 @@ else
     exit 1
 fi
 supervisorctl update
-rm -rf up_ss_hy.sh
 iptables -t nat -F
 ip6tables -t nat -F
 iptables -F
