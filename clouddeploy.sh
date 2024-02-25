@@ -100,7 +100,7 @@ EOF
 #申请证书:
 ~/.acme.sh/acme.sh --issue --dns dns_huaweicloud -d cloudedge.cyou -d *.cloudedge.cyou --keylength ec-256 --renew-hook "/root/restarthy.sh"
 #安装证书到目录:
-~/.acme.sh/acme.sh --install-cert -d *.cloudedge.cyou --ecc \
+~/.acme.sh/acme.sh --install-cert -d cloudedge.cyou -d *.cloudedge.cyou--ecc \
 --key-file       /root/.cert/server.key  \
 --fullchain-file /root/.cert/server.crt
 #配置防火墙：
