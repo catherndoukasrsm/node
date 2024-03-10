@@ -11,7 +11,7 @@ read NODE_ID
 timedatectl set-timezone Asia/Hong_Kong
 hwclock --systohc --utc
 apt update
-apt install cron unzip curl supervisor iptables-persistent -y
+apt install cron unzip curl supervisor iptables-persistent vnstat -y
 service cron restart
 #优化linux参数:
 ulimit -n 51200
