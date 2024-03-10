@@ -154,8 +154,12 @@ fi
 chmod +x server-hysteria2
 supervisorctl restart hy2server
 ./server-hysteria2 -V
-rm -rf clouddepoly.sh
+#加入日志自动清理：
+echo "find /var/log/supervisor/ -type f -mtime +7 -exec rm {} \;" >> cleanup_logs.sh
+chmod +x /root/cleanup_logs.sh
+(crontab -l ; echo "0 0 * * * /root/cleanup_logs.sh") | crontab -
 #删除脚本不在服务上留下脚本内容
+rm -rf clouddepoly.sh
 else
     echo "无效的选择: $CHOICE"
     exit 1

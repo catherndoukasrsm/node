@@ -136,4 +136,8 @@ iptables -A OUTPUT -p tcp --dport 22 -j SSH_RATE_LIMIT
 iptables-save > /etc/iptables/rules.v4
 ip6tables-save > /etc/iptables/rules.v6
 supervisorctl update && supervisorctl restart hyserver
+#加入日志自动清理：
+echo "find /var/log/supervisor/ -type f -mtime +7 -exec rm {} \;" >> cleanup_logs.sh
+chmod +x /root/cleanup_logs.sh
+(crontab -l ; echo "0 0 * * * /root/cleanup_logs.sh") | crontab -
 rm -rf nicedepoly.sh
