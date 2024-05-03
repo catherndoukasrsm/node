@@ -108,10 +108,10 @@ iptables -t nat -F
 ip6tables -t nat -F
 iptables -F
 ip6tables -F
-iptables -t nat -A PREROUTING -p udp --dport 5000:15000 -j DNAT --to-destination :4430
-ip6tables -t nat -A PREROUTING -p udp --dport 5000:15000 -j DNAT --to-destination :4430
-iptables -t nat -A PREROUTING -p udp --dport 20000:30000 -j DNAT --to-destination :4433
-ip6tables -t nat -A PREROUTING -p udp --dport 20000:30000 -j DNAT --to-destination :4433
+iptables -t nat -A PREROUTING -p udp --dport 5000:10000 -j DNAT --to-destination :4430
+ip6tables -t nat -A PREROUTING -p udp --dport 5000:10000 -j DNAT --to-destination :4430
+iptables -t nat -A PREROUTING -p udp --dport 15000:20000 -j DNAT --to-destination :4433
+ip6tables -t nat -A PREROUTING -p udp --dport 15000:20000 -j DNAT --to-destination :4433
 iptables -N SSH_RATE_LIMIT
 iptables -A SSH_RATE_LIMIT -m state --state NEW -m recent --name sshattack --set
 iptables -A SSH_RATE_LIMIT -m state --state NEW -m recent --name sshattack --update --seconds 60 --hitcount 30 -j DROP

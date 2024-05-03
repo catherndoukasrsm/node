@@ -8,10 +8,10 @@ function check_rules() {
     # 检查PREROUTING规则是否存在
     if [[ -z "$(echo "$iptables_rules" | grep "PREROUTING")" ]]; then
         # 添加PREROUTING规则
-        iptables -t nat -A PREROUTING -p udp --dport 6000:21000 -j DNAT --to-destination :18301
-        ip6tables -t nat -A PREROUTING -p udp --dport 6000:21000 -j DNAT --to-destination :18301
-        iptables -t nat -A PREROUTING -p udp --dport 22000:35000 -j DNAT --to-destination :4433
-        ip6tables -t nat -A PREROUTING -p udp --dport 22000:35000 -j DNAT --to-destination :4433
+        iptables -t nat -A PREROUTING -p udp --dport 6000:11000 -j DNAT --to-destination :18301
+        ip6tables -t nat -A PREROUTING -p udp --dport 6000:11000 -j DNAT --to-destination :18301
+        iptables -t nat -A PREROUTING -p udp --dport 22000:27000 -j DNAT --to-destination :4433
+        ip6tables -t nat -A PREROUTING -p udp --dport 22000:27000 -j DNAT --to-destination :4433
     fi
 
     # 检查SSH_RATE_LIMIT规则是否存在

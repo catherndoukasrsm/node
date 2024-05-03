@@ -50,10 +50,10 @@ autorestart=true
 EOF
 ) > /etc/supervisor/conf.d/hyserver.conf
 #配置防火墙：
-iptables -A INPUT -p udp --dport 6000:21000 -j ACCEPT
-ip6tables -A INPUT -p udp --dport 6000:21000 -j ACCEPT
-iptables -t nat -A PREROUTING -p udp --dport 6000:21000 -j DNAT --to-destination :18301
-ip6tables -t nat -A PREROUTING -p udp --dport 6000:21000 -j DNAT --to-destination :18301
+iptables -A INPUT -p udp --dport 6000:11000 -j ACCEPT
+ip6tables -A INPUT -p udp --dport 6000:11000 -j ACCEPT
+iptables -t nat -A PREROUTING -p udp --dport 6000:11000 -j DNAT --to-destination :18301
+ip6tables -t nat -A PREROUTING -p udp --dport 6000:11000 -j DNAT --to-destination :18301
 iptables-save > /etc/iptables/rules.v4
 ip6tables-save > /etc/iptables/rules.v6
 #删除脚本
