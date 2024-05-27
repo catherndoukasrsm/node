@@ -41,6 +41,7 @@ net.core.wmem_max = 16777216
 net.core.rmem_max = 16777216
 net.core.default_qdisc=fq_pie
 net.ipv4.tcp_congestion_control=bbr
+vm.swappiness=1
 EOF
 ) > /etc/sysctl.conf
 sysctl -p
