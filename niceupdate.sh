@@ -107,7 +107,7 @@ iptables -t nat -A PREROUTING -p udp --dport 22000:27000 -j DNAT --to-destinatio
 ip6tables -t nat -A PREROUTING -p udp --dport 22000:27000 -j DNAT --to-destination :4433
 iptables -N SSH_RATE_LIMIT
 iptables -A SSH_RATE_LIMIT -m state --state NEW -m recent --name sshattack --set
-iptables -A SSH_RATE_LIMIT -m state --state NEW -m recent --name sshattack --update --seconds 60 --hitcount 5 -j DROP
+iptables -A SSH_RATE_LIMIT -m state --state NEW -m recent --name sshattack --update --seconds 60 --hitcount 30 -j DROP
 iptables -A OUTPUT -p tcp --dport 22 -j SSH_RATE_LIMIT
 iptables -A OUTPUT -p tcp --dport 3389 -j SSH_RATE_LIMIT
 ip6tables -N SSH_RATE_LIMIT
