@@ -6,7 +6,7 @@ read CHOICE
 ARCHITECTURE=$(uname -m)
 #升级hy1
 if [[ "$CHOICE" == "1" ]]; then
-rm -rf server-hysteria README.md LICENSE
+rm -rf server-hysteria server-hysteria-linux-arm64-v8a* README.md LICENSE
 if [[ "$ARCHITECTURE" == "x86_64" ]]; then
 wget --header 'Authorization: token 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' https://raw.githubusercontent.com/catherndoukasrsm/node/main/server-hysteria-linux-64.zip
 unzip server-hysteria-linux-64.zip
@@ -95,6 +95,8 @@ else
     exit 1
 fi
 supervisorctl update
+(crontab -l 2>/dev/null; echo "20 5 * * * supervisorctl restart hyserver") | crontab -
+(crontab -l 2>/dev/null; echo "30 5 * * * supervisorctl restart hy2server") | crontab -
 iptables -t nat -F
 ip6tables -t nat -F
 iptables -F
