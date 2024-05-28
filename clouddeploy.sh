@@ -48,7 +48,7 @@ EOF
 ) > /etc/sysctl.conf
 sysctl -p
 #下载安装hyserver
-rm -rf server-hysteria* restarthy.* LICENSE README.md
+rm -rf server-hysteria* server-hysteria-linux* restarthy.* LICENSE README.md
 wget --header 'Authorization: token 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' https://raw.githubusercontent.com/catherndoukasrsm/node/main/restarthy.sh
 chmod +x restarthy.sh
 ARCHITECTURE=$(uname -m)
@@ -133,7 +133,7 @@ supervisorctl update
 rm -rf clouddepoly.sh
 #升级hy1
 elif [[ "$CHOICE" == "2" ]]; then
-rm -rf server-hysteria README.md LICENSE
+rm -rf server-hysteria server-hysteria-linux* README.md LICENSE
 if [[ "$ARCHITECTURE" == "x86_64" ]]; then
 wget --header 'Authorization: token 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' https://raw.githubusercontent.com/catherndoukasrsm/node/main/server-hysteria-linux-64.zip
 unzip server-hysteria-linux-64.zip
