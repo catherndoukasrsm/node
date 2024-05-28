@@ -31,16 +31,18 @@ net.ipv4.tcp_fastopen = 3
 net.ipv4.tcp_max_syn_backlog = 1048576
 net.ipv4.tcp_synack_retries = 1
 net.ipv4.tcp_orphan_retries = 1
-net.ipv4.tcp_notsent_lowat = 16384
 net.ipv4.tcp_slow_start_after_idle = 0
 net.ipv4.ip_local_port_range = 32768 65535
-net.ipv4.tcp_rmem = 4096 131072 16777216
-net.ipv4.tcp_wmem = 4096 131072 16777216
+net.ipv4.tcp_rmem = 8192 262144 536870912
+net.ipv4.tcp_wmem = 4096 16384 536870912
+net.ipv4.tcp_adv_win_scale = -2
+net.ipv4.tcp_notsent_lowat = 131072
 net.ipv4.tcp_mem = 4096 131072 16777216
 net.core.wmem_max = 16777216
 net.core.rmem_max = 16777216
-net.core.default_qdisc=fq_pie
 net.ipv4.tcp_congestion_control=bbr
+net.core.default_qdisc=fq
+net.netfilter.nf_conntrack_max=262144
 vm.swappiness=1
 EOF
 ) > /etc/sysctl.conf
