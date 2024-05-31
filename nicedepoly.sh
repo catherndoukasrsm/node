@@ -42,6 +42,7 @@ net.core.rmem_max = 16777216
 net.ipv4.tcp_congestion_control=bbr
 net.core.default_qdisc=fq
 net.netfilter.nf_conntrack_max=262144
+net.netfilter.nf_conntrack_buckets=65536
 vm.swappiness=1
 EOF
 ) > /etc/sysctl.conf
