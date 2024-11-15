@@ -97,26 +97,32 @@ fi
 supervisorctl update
 (crontab -l 2>/dev/null; echo "20 5 * * * supervisorctl restart hyserver") | crontab -
 (crontab -l 2>/dev/null; echo "30 5 * * * supervisorctl restart hy2server") | crontab -
-iptables -t nat -F
-ip6tables -t nat -F
-iptables -F
-ip6tables -F
-iptables -t nat -A PREROUTING -p udp --dport 6000:11000 -j DNAT --to-destination :18301
-ip6tables -t nat -A PREROUTING -p udp --dport 6000:11000 -j DNAT --to-destination :18301
-iptables -t nat -A PREROUTING -p udp --dport 22000:27000 -j DNAT --to-destination :4433
-ip6tables -t nat -A PREROUTING -p udp --dport 22000:27000 -j DNAT --to-destination :4433
-iptables -N SSH_RATE_LIMIT
-iptables -A SSH_RATE_LIMIT -m state --state NEW -m recent --name sshattack --set
-iptables -A SSH_RATE_LIMIT -m state --state NEW -m recent --name sshattack --update --seconds 60 --hitcount 30 -j DROP
-iptables -A OUTPUT -p tcp --dport 22 -j SSH_RATE_LIMIT
-iptables -A OUTPUT -p tcp --dport 3389 -j SSH_RATE_LIMIT
-ip6tables -N SSH_RATE_LIMIT
-ip6tables -A SSH_RATE_LIMIT -m state --state NEW -m recent --name sshattack --set
-ip6tables -A SSH_RATE_LIMIT -m state --state NEW -m recent --name sshattack --update --seconds 60 --hitcount 30 -j DROP
-ip6tables -A OUTPUT -p tcp --dport 22 -j SSH_RATE_LIMIT
-ip6tables -A OUTPUT -p tcp --dport 3389 -j SSH_RATE_LIMIT
-iptables-save > /etc/iptables/rules.v4
-ip6tables-save > /etc/iptables/rules.v6
+echo "清空当前nftables规则"
+nft flush ruleset
+echo "#配置nftables防火墙："
+echo "创建inet hysteria_porthopping表和链"
+nft add table inet hysteria_porthopping
+nft 'add chain inet hysteria_porthopping prerouting { type nat hook prerouting priority dstnat; policy accept; }'
+echo "设置6000-11000->18301"
+nft add rule inet hysteria_porthopping prerouting udp dport 6000-11000 redirect to :18301
+echo "设置22000-27000->4433"
+nft add rule inet hysteria_porthopping prerouting udp dport 22000-27000 redirect to :4433
+echo "创建inet outbound_limit表和链"
+nft add table inet outbound_limit
+nft 'add chain inet outbound_limit output { type filter hook output priority 0; }'
+echo "创建outbound_limit计数器"
+nft add counter inet outbound_limit smtp_counter
+nft add counter inet outbound_limit ssh_rdp_counter
+echo "添加 SMTP 规则（端口 25, 465, 587）"
+nft 'add rule inet outbound_limit output meta l4proto tcp tcp dport { 25, 465, 587 }' \
+    limit rate 20/minute counter name smtp_counter accept
+echo "添加 SSH 和 RDP 规则（端口 22 和 3389）"
+nft 'add rule inet outbound_limit output meta l4proto tcp tcp dport { 22, 3389 }' \
+    limit rate 20/minute counter name ssh_rdp_counter accept
+echo "丢弃超过限制的连接"
+nft add rule inet outbound_limit output meta l4proto tcp tcp dport { 25, 465, 587, 22, 3389 } drop
+echo "保存规则"
+nft list ruleset > /etc/nftables.conf
 else
     echo "无效的选择: $CHOICE"
     exit 1

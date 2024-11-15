@@ -7,19 +7,32 @@ read CHOICE
 if [[ "$CHOICE" == "1" ]]; then
 echo "请输入节点ID："
 read NODE_ID
-# set timezone
+echo "# set timezone"
 timedatectl set-timezone Asia/Hong_Kong
 hwclock --systohc --utc
 apt update
-apt install cron unzip curl supervisor iptables-persistent vnstat -y
+apt install cron unzip curl supervisor nftables vnstat net-tools mtr-tiny -y
 service cron restart
-#优化linux参数:
+echo "停止ufw"
+systemctl stop ufw
+systemctl disable ufw
+echo "删除iptables和ufw等"
+apt remove --purge iptables xtables-addons-common iptables-persistent netfilter-persistent ufw -y
+echo "清除无用的依赖"
+apt autoremove --purge -y
+echo "设置nftables开机启动"
+systemctl enable nftables
+systemctl start nftables
+echo "清空当前nftables规则"
+nft flush ruleset
+echo "#优化linux参数:"
 ulimit -n 51200
 echo "* soft nofile 51200" >> /etc/security/limits.conf
 echo "* hard nofile 51200" >> /etc/security/limits.conf
 echo "root soft nofile 51200" >> /etc/security/limits.conf
 echo "root hard nofile 51200" >> /etc/security/limits.conf
 echo "102400" > /proc/sys/fs/file-max
+modprobe nf_conntrack
 (cat <<EOF
 fs.file-max = 102400
 net.core.somaxconn = 1048576
@@ -107,27 +120,32 @@ EOF
 ~/.acme.sh/acme.sh --install-cert -d cloudedge.cyou -d *.cloudedge.cyou--ecc \
 --key-file       /root/.cert/server.key  \
 --fullchain-file /root/.cert/server.crt
-#配置防火墙：
-iptables -t nat -F
-ip6tables -t nat -F
-iptables -F
-ip6tables -F
-iptables -t nat -A PREROUTING -p udp --dport 5000:10000 -j DNAT --to-destination :4430
-ip6tables -t nat -A PREROUTING -p udp --dport 5000:10000 -j DNAT --to-destination :4430
-iptables -t nat -A PREROUTING -p udp --dport 15000:20000 -j DNAT --to-destination :4433
-ip6tables -t nat -A PREROUTING -p udp --dport 15000:20000 -j DNAT --to-destination :4433
-iptables -N SSH_RATE_LIMIT
-iptables -A SSH_RATE_LIMIT -m state --state NEW -m recent --name sshattack --set
-iptables -A SSH_RATE_LIMIT -m state --state NEW -m recent --name sshattack --update --seconds 60 --hitcount 30 -j DROP
-iptables -A OUTPUT -p tcp --dport 22 -j SSH_RATE_LIMIT
-iptables -A OUTPUT -p tcp --dport 3389 -j SSH_RATE_LIMIT
-ip6tables -N SSH_RATE_LIMIT
-ip6tables -A SSH_RATE_LIMIT -m state --state NEW -m recent --name sshattack --set
-ip6tables -A SSH_RATE_LIMIT -m state --state NEW -m recent --name sshattack --update --seconds 60 --hitcount 30 -j DROP
-ip6tables -A OUTPUT -p tcp --dport 22 -j SSH_RATE_LIMIT
-ip6tables -A OUTPUT -p tcp --dport 3389 -j SSH_RATE_LIMIT
-iptables-save > /etc/iptables/rules.v4
-ip6tables-save > /etc/iptables/rules.v6
+echo "清空当前nftables规则"
+nft flush ruleset
+echo "#配置nftables防火墙："
+echo "创建inet hysteria_porthopping表和链"
+nft add table inet hysteria_porthopping
+nft 'add chain inet hysteria_porthopping prerouting { type nat hook prerouting priority dstnat; policy accept; }'
+echo "设置5000-10000->4430"
+nft add rule inet hysteria_porthopping prerouting udp dport 5000-10000 redirect to :4430
+echo "设置15000-20000->4433"
+nft add rule inet hysteria_porthopping prerouting udp dport 15000-20000 redirect to :4433
+echo "创建inet outbound_limit表和链"
+nft add table inet outbound_limit
+nft 'add chain inet outbound_limit output { type filter hook output priority 0; }'
+echo "创建outbound_limit计数器"
+nft add counter inet outbound_limit smtp_counter
+nft add counter inet outbound_limit ssh_rdp_counter
+echo "添加 SMTP 规则（端口 25, 465, 587）"
+nft 'add rule inet outbound_limit output meta l4proto tcp tcp dport { 25, 465, 587 }' \
+    limit rate 20/minute counter name smtp_counter accept
+echo "添加 SSH 和 RDP 规则（端口 22 和 3389）"
+nft 'add rule inet outbound_limit output meta l4proto tcp tcp dport { 22, 3389 }' \
+    limit rate 20/minute counter name ssh_rdp_counter accept
+echo "丢弃超过限制的连接"
+nft add rule inet outbound_limit output meta l4proto tcp tcp dport { 25, 465, 587, 22, 3389 } drop
+echo "保存规则"
+nft list ruleset > /etc/nftables.conf
 #启动服务
 supervisorctl update
 #删除脚本不在服务上留下脚本内容
