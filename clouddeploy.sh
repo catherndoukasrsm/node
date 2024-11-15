@@ -102,7 +102,7 @@ autorestart=true
 EOF
 ) > /etc/supervisor/conf.d/hy2server.conf
 #申请证书:
-~/.acme.sh/acme.sh --issue --dns dns_huaweicloud -d cloudedge.cyou -d *.cloudedge.cyou --keylength ec-256 --renew-hook "/root/restarthy.sh"
+~/.acme.sh/acme.sh --issue --dns dns_huaweicloud -d cloudedge.cyou -d *.cloudedge.cyou --keylength ec-256 --renew-hook "/root/restarthy.sh" --dnssleep
 #安装证书到目录:
 ~/.acme.sh/acme.sh --install-cert -d cloudedge.cyou -d *.cloudedge.cyou--ecc \
 --key-file       /root/.cert/server.key  \

@@ -81,7 +81,7 @@ autorestart=true
 EOF
 ) > /etc/supervisor/conf.d/hyserver.conf
 #申请qf证书:
-~/.acme.sh/acme.sh --issue --dns dns_ali -d *.shiyuandian.shop --keylength ec-256 --renew-hook "/root/restarthy.sh"
+~/.acme.sh/acme.sh --issue --dns dns_ali -d *.shiyuandian.shop --keylength ec-256 --renew-hook "/root/restarthy.sh" --dnssleep
 #安装qf证书到目录:
 ~/.acme.sh/acme.sh --install-cert -d *.shiyuandian.shop --ecc \
 --key-file       /root/.cert/server.key  \
@@ -98,7 +98,7 @@ autorestart=true
 EOF
 ) > /etc/supervisor/conf.d/hyserver.conf
 #申请xiaoliyu证书:
-~/.acme.sh/acme.sh --issue --dns dns_ali -d *.xiaoliyu.cyou --keylength ec-256 --renew-hook "/root/restarthy.sh"
+~/.acme.sh/acme.sh --issue --dns dns_ali -d *.xiaoliyu.cyou --keylength ec-256 --renew-hook "/root/restarthy.sh" --dnssleep
 #安装xiaoliyu证书到目录:
 ~/.acme.sh/acme.sh --install-cert -d *.xiaoliyu.cyou --ecc \
 --key-file       /root/.cert/server.key  \
@@ -115,7 +115,7 @@ autorestart=true
 EOF
 ) > /etc/supervisor/conf.d/hyserver.conf
 #申请chaoyue证书:
-~/.acme.sh/acme.sh --issue --dns dns_ali -d *.chaoyuenode.sbs --keylength ec-256 --renew-hook "/root/restarthy.sh"
+~/.acme.sh/acme.sh --issue --dns dns_ali -d *.chaoyuenode.sbs --keylength ec-256 --renew-hook "/root/restarthy.sh" --dnssleep
 #安装chaoyue证书到目录:
 ~/.acme.sh/acme.sh --install-cert -d *.chaoyuenode.sbs --ecc \
 --key-file       /root/.cert/server.key  \
