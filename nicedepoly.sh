@@ -10,8 +10,6 @@ echo "# set timezone"
 timedatectl set-timezone Asia/Hong_Kong
 hwclock --systohc --utc
 apt update
-apt install cron unzip curl supervisor nftables vnstat net-tools mtr-tiny -y
-service cron restart
 echo "停止ufw"
 systemctl stop ufw
 systemctl disable ufw
@@ -19,6 +17,28 @@ echo "删除iptables和ufw等"
 apt remove --purge iptables xtables-addons-common iptables-persistent netfilter-persistent ufw -y
 echo "清除无用的依赖"
 apt autoremove --purge -y
+apt install cron unzip curl supervisor nftables vnstat net-tools mtr-tiny systemd-resolved -y
+systemctl restart cron
+# 写入systemd-resolved配置文件
+cat > /etc/systemd/resolved.conf <<EOF
+[Resolve]
+DNS=8.8.8.8 1.1.1.1 8.8.4.4 1.0.0.1
+FallbackDNS=9.9.9.9 149.112.112.112 2606:4700:4700::1111 2606:4700:4700::1001
+Domains=~.
+DNSOverTLS=yes
+Cache=yes
+CacheFromLocalhost=yes
+DNSStubListener=yes
+DNSStubListenerExtra=127.0.0.1:853
+ReadEtcHosts=yes
+ResolveUnicastSingleLabel=yes
+EOF
+# 重启systemd-resolved服务
+systemctl enable systemd-resolved
+systemctl restart systemd-resolved
+# 将/etc/resolv.conf软链接到/run/systemd/resolve/stub-resolv.conf
+ln -sf /run/systemd/resolve/stub-resolv.conf /etc/resolv.conf
+echo "# systemd-resolved配置完成。"
 echo "设置nftables开机启动"
 systemctl enable nftables
 systemctl start nftables
