@@ -18,7 +18,8 @@ echo "删除iptables和ufw等"
 apt remove --purge iptables xtables-addons-common iptables-persistent netfilter-persistent ufw -y
 echo "清除无用的依赖"
 apt autoremove --purge -y
-apt install cron unzip curl supervisor nftables vnstat net-tools mtr-tiny systemd-resolved -y
+apt install cron unzip curl supervisor nftables vnstat net-tools mtr-tiny -y
+apt install systemd-resolved -y
 systemctl restart cron
 # 写入systemd-resolved配置文件
 cat > /etc/systemd/resolved.conf <<EOF
