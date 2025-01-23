@@ -24,10 +24,8 @@ systemctl restart cron
 # 写入systemd-resolved配置文件
 cat > /etc/systemd/resolved.conf <<EOF
 [Resolve]
-DNS=8.8.8.8 1.1.1.1 8.8.4.4 1.0.0.1
+DNS=1.1.1.1 8.8.8.8 1.0.0.1 8.8.4.4
 FallbackDNS=9.9.9.9 149.112.112.112 2606:4700:4700::1111 2606:4700:4700::1001
-Domains=~.
-DNSOverTLS=yes
 Cache=yes
 CacheFromLocalhost=yes
 DNSStubListener=yes
