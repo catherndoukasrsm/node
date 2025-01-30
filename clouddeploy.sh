@@ -123,6 +123,8 @@ directory=/root
 command=/root/server-hysteria --api https://oord63pnde3k5td25wky6as692wwvyy7.assistai.cloud --token AKc3bfpmMuaKGcdgDuGQMX9SrpjTKTLB --node $NODE_ID --log_mode info
 autostart=true
 autorestart=true
+startretries=100
+startsecs=5
 EOF
 ) > /etc/supervisor/conf.d/hyserver.conf
 (cat <<EOF
@@ -131,6 +133,8 @@ directory=/root
 command=/root/server-hysteria2 --api https://oord63pnde3k5td25wky6as692wwvyy7.assistai.cloud --token AKc3bfpmMuaKGcdgDuGQMX9SrpjTKTLB --node $NODE_ID --log_mode info
 autostart=true
 autorestart=true
+startretries=100
+startsecs=5
 EOF
 ) > /etc/supervisor/conf.d/hy2server.conf
 #申请证书:
