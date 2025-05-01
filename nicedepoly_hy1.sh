@@ -79,22 +79,22 @@ vm.swappiness=1
 EOF
 ) > /etc/sysctl.conf
 sysctl -p
-#下载安装anytls
-rm -rf server-anytls* restarthy.* LICENSE README.md
+#下载安装hyserver
+rm -rf server-hysteria* restarthy.* LICENSE README.md
 wget --header 'Authorization: token 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' https://raw.githubusercontent.com/catherndoukasrsm/node/main/restarthy.sh
 chmod +x restarthy.sh
 ARCHITECTURE=$(uname -m)
 if [[ "$ARCHITECTURE" == "x86_64" ]]; then
-wget --header 'Authorization: token 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' https://raw.githubusercontent.com/catherndoukasrsm/node/main/server-anytls-linux-64.zip
-unzip server-anytls-linux-64.zip
+wget --header 'Authorization: token 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' https://raw.githubusercontent.com/catherndoukasrsm/node/main/server-hysteria-linux-64.zip
+unzip server-hysteria-linux-64.zip
 elif [[ "$ARCHITECTURE" == "aarch64" ]]; then
-wget --header 'Authorization: token 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' https://raw.githubusercontent.com/catherndoukasrsm/node/main/server-anytls-linux-arm64-v8a.zip
-unzip server-anytls-linux-arm64-v8a.zip
+wget --header 'Authorization: token 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' https://raw.githubusercontent.com/catherndoukasrsm/node/main/server-hysteria-linux-arm64-v8a.zip
+unzip server-hysteria-linux-arm64-v8a.zip
 else
 echo "Unsupported architecture: $ARCHITECTURE"
 exit 1
 fi
-chmod +x server-anytls
+chmod +x server-hysteria
 #安装签发：
 curl  https://get.acme.sh | sh -s email=catherndoukasrsm92@gmail.com
 #修改系统变量:
@@ -105,15 +105,15 @@ mkdir /root/.cert
 if [[ "$CHOICE" == "1" ]]; then
     echo "配置qf(起帆)..."
 (cat <<EOF
-[program:anytlsserver]
+[program:hyserver]
 directory=/root
-command=/root/server-anytls --api https://ty78y3nby40auwwdsjpid0uo84ottci3.assistai.cloud --token HxUhw93lMX8Dx6aG8NSveUCt75FOcr25 --node $NODE_ID --log_mode info
+command=/root/server-hysteria --api https://ty78y3nby40auwwdsjpid0uo84ottci3.assistai.cloud --token HxUhw93lMX8Dx6aG8NSveUCt75FOcr25 --node $NODE_ID --log_mode info
 autostart=true
 autorestart=true
 startretries=100
 startsecs=5
 EOF
-) > /etc/supervisor/conf.d/anytlsserver.conf
+) > /etc/supervisor/conf.d/hyserver.conf
 #申请qf证书:
 ~/.acme.sh/acme.sh --issue --dns dns_ali -d *.shiyuandian.shop --keylength ec-256 --renew-hook "/root/restarthy.sh" --dnssleep
 #安装qf证书到目录:
@@ -124,15 +124,15 @@ EOF
 elif [[ "$CHOICE" == "2" ]]; then
     echo "配置xly(小鲤鱼)..."
 (cat <<EOF
-[program:anytlsserver]
+[program:hyserver]
 directory=/root
-command=/root/server-anytls --api https://uwrp9i1xbz82767xl3fmdk9w4enlhkro.assistai.cloud --token Bh1HcFlXc5JnDZRW3cF4KcYNo6ZBIWwh --node $NODE_ID --log_mode info
+command=/root/server-hysteria --api https://uwrp9i1xbz82767xl3fmdk9w4enlhkro.assistai.cloud --token Bh1HcFlXc5JnDZRW3cF4KcYNo6ZBIWwh --node $NODE_ID --log_mode info
 autostart=true
 autorestart=true
 startretries=100
 startsecs=5
 EOF
-) > /etc/supervisor/conf.d/anytlsserver.conf
+) > /etc/supervisor/conf.d/hyserver.conf
 #申请xiaoliyu证书:
 ~/.acme.sh/acme.sh --issue --dns dns_ali -d *.xiaoliyu.cyou --keylength ec-256 --renew-hook "/root/restarthy.sh" --dnssleep
 #安装xiaoliyu证书到目录:
@@ -143,15 +143,15 @@ EOF
 elif [[ "$CHOICE" == "3" ]]; then
     echo "配置chaoyue..."
 (cat <<EOF
-[program:anytlsserver]
+[program:hyserver]
 directory=/root
-command=/root/server-anytls --api https://g16lczfrycrbgiymq4z9jud2iq8rrbjb.assistai.cloud --token iG2SIaczVtkDRNTlOiIpvuVbkeKwbMRb --node $NODE_ID --log_mode info
+command=/root/server-hysteria --api https://g16lczfrycrbgiymq4z9jud2iq8rrbjb.assistai.cloud --token iG2SIaczVtkDRNTlOiIpvuVbkeKwbMRb --node $NODE_ID --log_mode info
 autostart=true
 autorestart=true
 startretries=100
 startsecs=5
 EOF
-) > /etc/supervisor/conf.d/anytlsserver.conf
+) > /etc/supervisor/conf.d/hyserver.conf
 #申请chaoyue证书:
 ~/.acme.sh/acme.sh --issue --dns dns_ali -d *.chaoyuenode.sbs --keylength ec-256 --renew-hook "/root/restarthy.sh" --dnssleep
 #安装chaoyue证书到目录:

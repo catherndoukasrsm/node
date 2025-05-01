@@ -1,2 +1,3 @@
 supervisorctl restart hyserver
 supervisorctl restart hy2server
+supervisorctl restart anytls
