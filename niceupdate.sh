@@ -104,7 +104,7 @@ else
 fi
 supervisorctl update
 #部署anytls
-elif [[ "$CHOICE" == "3" ]]; then
+elif [[ "$CHOICE" == "4" ]]; then
 echo "1. 配置qifan"
 echo "2. 配置xiaoliyu"
 echo "3. 配置chaoyue"
@@ -168,6 +168,22 @@ else
     exit 1
 fi
 supervisorctl update
+#升级anytls
+elif [[ "$CHOICE" == "5" ]]; then
+rm -rf server-anytls* README.md LICENSE
+if [[ "$ARCHITECTURE" == "x86_64" ]]; then
+wget --header 'Authorization: token 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' https://raw.githubusercontent.com/catherndoukasrsm/node/main/server-anytls-linux-64.zip
+unzip server-anytls-linux-64.zip
+elif [[ "$ARCHITECTURE" == "aarch64" ]]; then
+wget --header 'Authorization: token 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' https://raw.githubusercontent.com/catherndoukasrsm/node/main/server-anytls-linux-arm64-v8a.zip
+unzip server-anytls2-linux-arm64-v8a.zip
+else
+echo "Unsupported architecture: $ARCHITECTURE"
+exit 1
+fi
+chmod +x server-anytls
+supervisorctl restart anytlsserver
+./server-anytls -V
 (crontab -l 2>/dev/null; echo "20 5 * * * supervisorctl restart hyserver") | crontab -
 (crontab -l 2>/dev/null; echo "30 5 * * * supervisorctl restart hy2server") | crontab -
 (crontab -l 2>/dev/null; echo "40 5 * * * supervisorctl restart anytls") | crontab -
