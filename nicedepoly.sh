@@ -96,10 +96,11 @@ exit 1
 fi
 chmod +x server-hysteria
 #安装签发：
-curl  https://get.acme.sh | sh -s email=catherndoukasrsm92@gmail.com
+curl  https://get.acme.sh | sh -s email=huaweijx@proton.me
 #修改系统变量:
-export Ali_Key="LTAI5t5cFX1pgK34RT1eRB1b"
-export Ali_Secret="XclcTf9pDa2eq15kT0t6ysw6pvl9yv"
+export HUAWEICLOUD_Username=dnsop-api
+export HUAWEICLOUD_Password=3gJ93-CiQW4ezpyZXc
+export HUAWEICLOUD_DomainName=hid_64rdxwypr6l45v0
 mkdir /root/.cert
 # 配置qf
 if [[ "$CHOICE" == "1" ]]; then
@@ -115,7 +116,7 @@ startsecs=5
 EOF
 ) > /etc/supervisor/conf.d/hyserver.conf
 #申请qf证书:
-~/.acme.sh/acme.sh --issue --dns dns_ali -d *.shiyuandian.shop --keylength ec-256 --renew-hook "/root/restarthy.sh" --dnssleep
+~/.acme.sh/acme.sh --issue --dns dns_huaweicloud -d *.shiyuandian.shop --keylength ec-256 --renew-hook "/root/restarthy.sh" --dnssleep
 #安装qf证书到目录:
 ~/.acme.sh/acme.sh --install-cert -d *.shiyuandian.shop --ecc \
 --key-file       /root/.cert/server.key  \
@@ -134,7 +135,7 @@ startsecs=5
 EOF
 ) > /etc/supervisor/conf.d/hyserver.conf
 #申请xiaoliyu证书:
-~/.acme.sh/acme.sh --issue --dns dns_ali -d *.xiaoliyu.cyou --keylength ec-256 --renew-hook "/root/restarthy.sh" --dnssleep
+~/.acme.sh/acme.sh --issue --dns dns_huaweicloud -d *.xiaoliyu.cyou --keylength ec-256 --renew-hook "/root/restarthy.sh" --dnssleep
 #安装xiaoliyu证书到目录:
 ~/.acme.sh/acme.sh --install-cert -d *.xiaoliyu.cyou --ecc \
 --key-file       /root/.cert/server.key  \
@@ -153,7 +154,7 @@ startsecs=5
 EOF
 ) > /etc/supervisor/conf.d/hyserver.conf
 #申请chaoyue证书:
-~/.acme.sh/acme.sh --issue --dns dns_ali -d *.chaoyuenode.sbs --keylength ec-256 --renew-hook "/root/restarthy.sh" --dnssleep
+~/.acme.sh/acme.sh --issue --dns dns_huaweicloud -d *.chaoyuenode.sbs --keylength ec-256 --renew-hook "/root/restarthy.sh" --dnssleep
 #安装chaoyue证书到目录:
 ~/.acme.sh/acme.sh --install-cert -d *.chaoyuenode.sbs --ecc \
 --key-file       /root/.cert/server.key  \
