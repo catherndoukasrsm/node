@@ -47,10 +47,15 @@ echo "清空当前nftables规则"
 nft flush ruleset
 echo "#优化linux参数:"
 ulimit -n 51200
-echo "* soft nofile 51200" >> /etc/security/limits.conf
-echo "* hard nofile 51200" >> /etc/security/limits.conf
-echo "root soft nofile 51200" >> /etc/security/limits.conf
-echo "root hard nofile 51200" >> /etc/security/limits.conf
+# 删除所有 nofile 相关的行
+sed -i '/soft nofile/d; /hard nofile/d' /etc/security/limits.conf
+# 添加新的配置
+cat >> /etc/security/limits.conf << EOF
+* soft nofile 51200
+* hard nofile 51200
+root soft nofile 51200
+root hard nofile 51200
+EOF
 echo "102400" > /proc/sys/fs/file-max
 modprobe nf_conntrack
 (cat <<EOF
