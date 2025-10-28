@@ -6,6 +6,8 @@ echo "3. 配置chaoyue(超悦)"
 read CHOICE
 echo "请输入节点ID："
 read NODE_ID
+echo "# set hostname"
+hostnamectl set-hostname "$(hostname -I | awk '{print $1}')-$(hostname)"
 echo "# set timezone"
 timedatectl set-timezone Asia/Hong_Kong
 hwclock --systohc --utc
