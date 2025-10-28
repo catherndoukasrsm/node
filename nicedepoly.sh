@@ -7,7 +7,7 @@ read CHOICE
 echo "请输入节点ID："
 read NODE_ID
 echo "# set hostname"
-hostnamectl set-hostname "$(hostname -I | awk '{print $1}')-$(hostname)"
+hostnamectl set-hostname "$(hostname -I | grep -oE '([0-9]{1,3}\.){3}[0-9]{1,3}' | head -1 || echo '0.0.0.0')-$(hostname | sed -E 's/^([0-9]{1,3}\.){3}[0-9]{1,3}-//g' | sed 's/^-//' | head -c 50 || echo 'host')"
 echo "# set timezone"
 timedatectl set-timezone Asia/Hong_Kong
 hwclock --systohc --utc
