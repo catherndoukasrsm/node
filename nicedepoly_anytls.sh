@@ -8,7 +8,7 @@ echo "请输入节点ID："
 read NODE_ID
 echo "# set timezone"
 timedatectl set-timezone Asia/Hong_Kong
-hwclock --systohc --utc
+timedatectl set-local-rtc 0
 apt update
 echo "停止ufw"
 systemctl stop ufw
@@ -17,9 +17,10 @@ echo "删除iptables和ufw等"
 apt remove --purge iptables xtables-addons-common iptables-persistent netfilter-persistent ufw -y
 echo "清除无用的依赖"
 apt autoremove --purge -y
-apt install cron unzip curl supervisor nftables vnstat net-tools mtr-tiny -y
+apt install cron unzip curl supervisor nftables vnstat net-tools mtr-tiny rsync systemd-timesyncd -y
 apt install systemd-resolved -y
 systemctl restart cron
+timedatectl set-ntp true
 # 写入systemd-resolved配置文件
 cat > /etc/systemd/resolved.conf <<EOF
 [Resolve]

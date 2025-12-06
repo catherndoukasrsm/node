@@ -10,7 +10,7 @@ echo "# set hostname"
 hostnamectl set-hostname "$(hostname -I | grep -oE '([0-9]{1,3}\.){3}[0-9]{1,3}' | head -1 || echo '0.0.0.0')-$(hostname | sed -E 's/^([0-9]{1,3}\.){3}[0-9]{1,3}-//g' | sed 's/^-//' | head -c 50 || echo 'host')"
 echo "# set timezone"
 timedatectl set-timezone Asia/Hong_Kong
-hwclock --systohc --utc
+timedatectl set-local-rtc 0
 apt update
 echo "停止ufw"
 systemctl stop ufw
@@ -19,9 +19,10 @@ echo "删除iptables和ufw等"
 apt remove --purge iptables xtables-addons-common iptables-persistent netfilter-persistent ufw -y
 echo "清除无用的依赖"
 apt autoremove --purge -y
-apt install cron unzip curl supervisor nftables vnstat net-tools mtr-tiny -y
+apt install cron unzip curl supervisor nftables vnstat net-tools mtr-tiny rsync systemd-timesyncd -y
 apt install systemd-resolved -y
 systemctl restart cron
+timedatectl set-ntp true
 # 写入systemd-resolved配置文件
 cat > /etc/systemd/resolved.conf <<EOF
 [Resolve]
