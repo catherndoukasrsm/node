@@ -6,7 +6,7 @@ echo "4. 升级anytls"
 read CHOICE
 ARCHITECTURE=$(uname -m)
 #升级hy2
-elif [[ "$CHOICE" == "1" ]]; then
+if [[ "$CHOICE" == "1" ]]; then
 rm -rf server-hysteria2* README.md LICENSE
 if [[ "$ARCHITECTURE" == "x86_64" ]]; then
 wget --header 'Authorization: token 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' https://raw.githubusercontent.com/catherndoukasrsm/node/main/server-hysteria2-linux-64.zip
