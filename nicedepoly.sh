@@ -251,37 +251,35 @@ net.netfilter.nf_conntrack_tcp_loose = 1
 EOF
 ) > /etc/sysctl.conf
 sysctl -p
-#下载安装hyserver
-rm -rf server-hysteria* restarthy.* LICENSE README.md
-wget --header 'Authorization: token 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' https://raw.githubusercontent.com/catherndoukasrsm/node/main/restarthy.sh
-chmod +x restarthy.sh
+#下载安装anytls
+rm -rf server-anytls* README.md LICENSE
 ARCHITECTURE=$(uname -m)
 if [[ "$ARCHITECTURE" == "x86_64" ]]; then
-wget --header 'Authorization: token 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' https://raw.githubusercontent.com/catherndoukasrsm/node/main/server-hysteria-linux-64.zip
-unzip server-hysteria-linux-64.zip
+wget --header 'Authorization: token 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' https://raw.githubusercontent.com/catherndoukasrsm/node/main/server-anytls-linux-64.zip
+unzip server-anytls-linux-64.zip
 elif [[ "$ARCHITECTURE" == "aarch64" ]]; then
-wget --header 'Authorization: token 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' https://raw.githubusercontent.com/catherndoukasrsm/node/main/server-hysteria-linux-arm64-v8a.zip
-unzip server-hysteria-linux-arm64-v8a.zip
+wget --header 'Authorization: token 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' https://raw.githubusercontent.com/catherndoukasrsm/node/main/server-anytls-linux-arm64-v8a.zip
+unzip server-anytls-linux-arm64-v8a.zip
 else
 echo "Unsupported architecture: $ARCHITECTURE"
 exit 1
 fi
-chmod +x server-hysteria
+chmod +x server-anytls
 #创建证书目录
 mkdir -p /root/.cert
 # 配置qf
 if [[ "$CHOICE" == "1" ]]; then
     echo "配置qf(起帆)..."
 (cat <<EOF
-[program:hyserver]
+[program:anytlsserver]
 directory=/root
-command=/root/server-hysteria --api https://ty78y3nby40auwwdsjpid0uo84ottci3.assistai.cloud --token HxUhw93lMX8Dx6aG8NSveUCt75FOcr25 --node $NODE_ID --log_mode info
+command=/root/server-anytls --api https://ty78y3nby40auwwdsjpid0uo84ottci3.assistai.cloud --token HxUhw93lMX8Dx6aG8NSveUCt75FOcr25 --node $NODE_ID --log_mode info
 autostart=true
 autorestart=true
 startretries=100
 startsecs=5
 EOF
-) > /etc/supervisor/conf.d/hyserver.conf
+) > /etc/supervisor/conf.d/anytlsserver.conf
 #生成qf自签证书:
 openssl ecparam -genkey -name prime256v1 -out /root/.cert/server.key
 openssl req -new -x509 -days 36500 -key /root/.cert/server.key -out /root/.cert/server.crt \
@@ -291,15 +289,15 @@ openssl req -new -x509 -days 36500 -key /root/.cert/server.key -out /root/.cert/
 elif [[ "$CHOICE" == "2" ]]; then
     echo "配置xly(小鲤鱼)..."
 (cat <<EOF
-[program:hyserver]
+[program:anytlsserver]
 directory=/root
-command=/root/server-hysteria --api https://uwrp9i1xbz82767xl3fmdk9w4enlhkro.assistai.cloud --token Bh1HcFlXc5JnDZRW3cF4KcYNo6ZBIWwh --node $NODE_ID --log_mode info
+command=/root/server-anytls --api https://uwrp9i1xbz82767xl3fmdk9w4enlhkro.assistai.cloud --token Bh1HcFlXc5JnDZRW3cF4KcYNo6ZBIWwh --node $NODE_ID --log_mode info
 autostart=true
 autorestart=true
 startretries=100
 startsecs=5
 EOF
-) > /etc/supervisor/conf.d/hyserver.conf
+) > /etc/supervisor/conf.d/anytlsserver.conf
 #生成xiaoliyu自签证书:
 openssl ecparam -genkey -name prime256v1 -out /root/.cert/server.key
 openssl req -new -x509 -days 36500 -key /root/.cert/server.key -out /root/.cert/server.crt \
@@ -309,15 +307,15 @@ openssl req -new -x509 -days 36500 -key /root/.cert/server.key -out /root/.cert/
 elif [[ "$CHOICE" == "3" ]]; then
     echo "配置chaoyue..."
 (cat <<EOF
-[program:hyserver]
+[program:anytlsserver]
 directory=/root
-command=/root/server-hysteria --api https://g16lczfrycrbgiymq4z9jud2iq8rrbjb.assistai.cloud --token iG2SIaczVtkDRNTlOiIpvuVbkeKwbMRb --node $NODE_ID --log_mode info
+command=/root/server-anytls --api https://g16lczfrycrbgiymq4z9jud2iq8rrbjb.assistai.cloud --token iG2SIaczVtkDRNTlOiIpvuVbkeKwbMRb --node $NODE_ID --log_mode info
 autostart=true
 autorestart=true
 startretries=100
 startsecs=5
 EOF
-) > /etc/supervisor/conf.d/hyserver.conf
+) > /etc/supervisor/conf.d/anytlsserver.conf
 #生成chaoyue自签证书:
 openssl ecparam -genkey -name prime256v1 -out /root/.cert/server.key
 openssl req -new -x509 -days 36500 -key /root/.cert/server.key -out /root/.cert/server.crt \
@@ -327,6 +325,8 @@ else
     echo "无效的选择: $CHOICE"
     exit 1
 fi
+supervisorctl update
+(crontab -l 2>/dev/null; echo "40 5 * * * supervisorctl restart anytlsserver") | crontab -
 echo "清空当前nftables规则"
 nft flush ruleset
 echo "#配置nftables防火墙："
@@ -346,7 +346,7 @@ echo "丢弃超过限制的连接"
 nft add rule inet outbound_limit output meta l4proto tcp tcp dport { 25, 465, 587, 22, 3389 } drop
 echo "保存规则"
 nft list ruleset > /etc/nftables.conf
-supervisorctl update && supervisorctl restart hyserver
+supervisorctl update && supervisorctl restart anytlsserver
 #加入日志自动清理：
 echo "find /var/log/supervisor/ -type f -mtime +7 -exec rm {} \;" >> cleanup_logs.sh
 chmod +x /root/cleanup_logs.sh
