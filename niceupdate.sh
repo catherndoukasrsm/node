@@ -1,29 +1,12 @@
 #!/bin/bash
-echo "1. 升级hy1"
-echo "2. 升级hy2"
-echo "3. 部署hy2"
-echo "4. 部署anytls"
-echo "5. 升级anytls"
+echo "1. 升级hy2"
+echo "2. 部署hy2"
+echo "3. 部署anytls"
+echo "4. 升级anytls"
 read CHOICE
 ARCHITECTURE=$(uname -m)
-#升级hy1
-if [[ "$CHOICE" == "1" ]]; then
-rm -rf server-hysteria server-hysteria-linux* README.md LICENSE
-if [[ "$ARCHITECTURE" == "x86_64" ]]; then
-wget --header 'Authorization: token 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' https://raw.githubusercontent.com/catherndoukasrsm/node/main/server-hysteria-linux-64.zip
-unzip server-hysteria-linux-64.zip
-elif [[ "$ARCHITECTURE" == "aarch64" ]]; then
-wget --header 'Authorization: token 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' https://raw.githubusercontent.com/catherndoukasrsm/node/main/server-hysteria-linux-arm64-v8a.zip
-unzip server-hysteria-linux-arm64-v8a.zip
-else
-echo "Unsupported architecture: $ARCHITECTURE"
-exit 1
-fi
-chmod +x server-hysteria
-supervisorctl restart hyserver
-./server-hysteria -V
 #升级hy2
-elif [[ "$CHOICE" == "2" ]]; then
+elif [[ "$CHOICE" == "1" ]]; then
 rm -rf server-hysteria2* README.md LICENSE
 if [[ "$ARCHITECTURE" == "x86_64" ]]; then
 wget --header 'Authorization: token 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' https://raw.githubusercontent.com/catherndoukasrsm/node/main/server-hysteria2-linux-64.zip
@@ -39,7 +22,7 @@ chmod +x server-hysteria2
 supervisorctl restart hy2server
 ./server-hysteria2 -V
 #部署hy2
-elif [[ "$CHOICE" == "3" ]]; then
+elif [[ "$CHOICE" == "2" ]]; then
 echo "1. 配置qifan"
 echo "2. 配置xiaoliyu"
 echo "3. 配置chaoyue"
@@ -103,18 +86,10 @@ else
     exit 1
 fi
 supervisorctl update
-(crontab -l 2>/dev/null; echo "20 5 * * * supervisorctl restart hyserver") | crontab -
 (crontab -l 2>/dev/null; echo "30 5 * * * supervisorctl restart hy2server") | crontab -
 echo "清空当前nftables规则"
 nft flush ruleset
 echo "#配置nftables防火墙："
-echo "创建inet hysteria_porthopping表和链"
-nft add table inet hysteria_porthopping
-nft 'add chain inet hysteria_porthopping prerouting { type nat hook prerouting priority dstnat; policy accept; }'
-echo "设置6000-11000->18301"
-nft add rule inet hysteria_porthopping prerouting udp dport 6000-11000 redirect to :18301
-echo "设置22000-27000->4433"
-nft add rule inet hysteria_porthopping prerouting udp dport 22000-27000 redirect to :4433
 echo "创建inet outbound_limit表和链"
 nft add table inet outbound_limit
 nft 'add chain inet outbound_limit output { type filter hook output priority 0; }'
@@ -132,7 +107,7 @@ nft add rule inet outbound_limit output meta l4proto tcp tcp dport { 25, 465, 58
 echo "保存规则"
 nft list ruleset > /etc/nftables.conf
 #部署anytls
-elif [[ "$CHOICE" == "4" ]]; then
+elif [[ "$CHOICE" == "3" ]]; then
 echo "1. 配置qifan"
 echo "2. 配置xiaoliyu"
 echo "3. 配置chaoyue"
@@ -198,7 +173,7 @@ fi
 supervisorctl update
 (crontab -l 2>/dev/null; echo "40 5 * * * supervisorctl restart anytlsserver") | crontab -
 #升级anytls
-elif [[ "$CHOICE" == "5" ]]; then
+elif [[ "$CHOICE" == "4" ]]; then
 rm -rf server-anytls* README.md LICENSE
 if [[ "$ARCHITECTURE" == "x86_64" ]]; then
 wget --header 'Authorization: token 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' https://raw.githubusercontent.com/catherndoukasrsm/node/main/server-anytls-linux-64.zip
