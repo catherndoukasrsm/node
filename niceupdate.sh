@@ -1,8 +1,9 @@
 #!/bin/bash
 echo "1. 升级hy2"
 echo "2. 部署hy2"
-echo "3. 部署anytls"
-echo "4. 升级anytls"
+echo "3. 升级anytls"
+echo "4. 部署anytls"
+
 read CHOICE
 ARCHITECTURE=$(uname -m)
 #升级hy2
@@ -106,8 +107,25 @@ echo "丢弃超过限制的连接"
 nft add rule inet outbound_limit output meta l4proto tcp tcp dport { 25, 465, 587, 22, 3389 } drop
 echo "保存规则"
 nft list ruleset > /etc/nftables.conf
-#部署anytls
+#升级anytls
 elif [[ "$CHOICE" == "3" ]]; then
+rm -rf server-anytls* README.md LICENSE
+if [[ "$ARCHITECTURE" == "x86_64" ]]; then
+wget --header 'Authorization: token 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' https://raw.githubusercontent.com/catherndoukasrsm/node/main/server-anytls-linux-64.zip
+unzip server-anytls-linux-64.zip
+elif [[ "$ARCHITECTURE" == "aarch64" ]]; then
+wget --header 'Authorization: token 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' https://raw.githubusercontent.com/catherndoukasrsm/node/main/server-anytls-linux-arm64-v8a.zip
+unzip server-anytls2-linux-arm64-v8a.zip
+else
+echo "Unsupported architecture: $ARCHITECTURE"
+exit 1
+fi
+chmod +x server-anytls
+supervisorctl restart anytlsserver
+./server-anytls -V
+
+#部署anytls
+elif [[ "$CHOICE" == "4" ]]; then
 echo "1. 配置qifan"
 echo "2. 配置xiaoliyu"
 echo "3. 配置chaoyue"
@@ -172,23 +190,6 @@ else
 fi
 supervisorctl update
 (crontab -l 2>/dev/null; echo "40 5 * * * supervisorctl restart anytlsserver") | crontab -
-#升级anytls
-elif [[ "$CHOICE" == "4" ]]; then
-rm -rf server-anytls* README.md LICENSE
-if [[ "$ARCHITECTURE" == "x86_64" ]]; then
-wget --header 'Authorization: token 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' https://raw.githubusercontent.com/catherndoukasrsm/node/main/server-anytls-linux-64.zip
-unzip server-anytls-linux-64.zip
-elif [[ "$ARCHITECTURE" == "aarch64" ]]; then
-wget --header 'Authorization: token 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' https://raw.githubusercontent.com/catherndoukasrsm/node/main/server-anytls-linux-arm64-v8a.zip
-unzip server-anytls2-linux-arm64-v8a.zip
-else
-echo "Unsupported architecture: $ARCHITECTURE"
-exit 1
-fi
-chmod +x server-anytls
-supervisorctl restart anytlsserver
-./server-anytls -V
-
 else
     echo "无效的选择: $CHOICE"
     exit 1
