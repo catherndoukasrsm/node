@@ -122,7 +122,7 @@ exit 1
 fi
 chmod +x server-anytls
 supervisorctl restart anytlsserver
-./server-anytls -V
+./server-anytls -v
 
 #部署anytls
 elif [[ "$CHOICE" == "4" ]]; then
