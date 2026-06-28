@@ -1,4 +1,22 @@
 #!/bin/bash
+# ===== GitHub 私有仓库下载配置 =====
+# 部署前只需修改下面这一行 GH_TOKEN，换成你的 fine-grained 只读令牌：
+#   GitHub → Settings → Developer settings → Fine-grained tokens
+#   仅授权 catherndoukasrsm/node 仓库，权限 Contents: Read-only，建议设置过期时间。
+# 也可以运行前用环境变量覆盖：export GH_TOKEN=xxxxx
+GH_TOKEN="${GH_TOKEN:-PUT_YOUR_FINE_GRAINED_TOKEN_HERE}"
+GH_OWNER_REPO="catherndoukasrsm/node"
+GH_REF="main"
+# 从私有仓库下载文件到当前目录（GitHub Contents API，兼容 fine-grained 令牌）
+gh_download() {
+  curl -fSL \
+    -H "Authorization: Bearer ${GH_TOKEN}" \
+    -H "Accept: application/vnd.github.raw" \
+    -o "$(basename "$1")" \
+    "https://api.github.com/repos/${GH_OWNER_REPO}/contents/$1?ref=${GH_REF}"
+}
+# ===================================
+
 echo "注意，本脚本只支持Debian11+及ubuntu20.04+系统；请选择需要配置的网站：（输入数字1或2）"
 echo "1. 配置qf(起帆)"
 echo "2. 配置xly(小鲤鱼)"
@@ -63,191 +81,114 @@ echo "102400" > /proc/sys/fs/file-max
 modprobe nf_conntrack
 (cat <<EOF
 # =============================================================
-# 代理节点优化 - 2C2G VPS / 高丢包(5-10%) / 高延迟(150ms)
-# 适用于：Trojan, Xray, sing-box, Hysteria, TUIC
+# 代理转发节点优化 - 4C4G / 现代 Linux 内核 / 精简稳妥版
+# 适用：Xray / sing-box / Trojan / realm / gost / Nginx stream
+#
+# 目标：
+# - 保留内核自动调节，只提高代理转发需要的关键上限
+# - 避免过大的 default 缓冲、tcp_mem、ECN、RACK/TLP 等重复或易负优化参数
+# - 适合常见 1Gbps 以内、RTT 50-250ms、多连接代理转发场景
 # =============================================================
 
-# =============================================================
-# 系统资源
-# =============================================================
+# 文件句柄：服务本身仍需配合 systemd LimitNOFILE / ulimit
 fs.file-max = 1048576
 
-vm.swappiness = 10
-vm.dirty_ratio = 15
-vm.dirty_background_ratio = 5
-vm.overcommit_memory = 1
-
 # =============================================================
-# TCP 缓冲区 - 高丢包需要更大缓冲容纳重传
-# =============================================================
-net.core.rmem_max = 67108864
-net.core.wmem_max = 67108864
-net.core.rmem_default = 2097152
-net.core.wmem_default = 2097152
-
-# min / default / max
-# default 设大：单连接初始就有足够空间
-# max 设大：容纳乱序包和重传
-net.ipv4.tcp_rmem = 4096 2097152 67108864
-net.ipv4.tcp_wmem = 4096 2097152 67108864
-
-# tcp_mem (单位：4KB页) - 适配 2G 内存
-# 约 48MB / 128MB / 192MB
-net.ipv4.tcp_mem = 12288 32768 49152
-
-# =============================================================
-# 窗口与流控 - 高丢包高延迟专用
-# =============================================================
-net.ipv4.tcp_window_scaling = 1
-net.ipv4.tcp_timestamps = 1
-
-# 窗口 = 1/2 缓冲区，高丢包需要大窗口
-net.ipv4.tcp_adv_win_scale = -1
-
-# 高丢包场景不限制发送，让 BBR 自己控制
-# net.ipv4.tcp_notsent_lowat = 不设置
-
-# =============================================================
-# 拥塞控制 - BBR 对丢包容忍度最高
+# TCP 拥塞控制
 # =============================================================
 net.ipv4.tcp_congestion_control = bbr
 net.core.default_qdisc = fq
-
-# 关键：空闲后不重置窗口，高丢包环境重建窗口代价太大
 net.ipv4.tcp_slow_start_after_idle = 0
 
 # =============================================================
-# 丢包检测与恢复 - 核心优化
+# Socket 缓冲
+# 4G 内存不建议把 default 设大；让 Linux autotuning 按连接实际需要增长
+# max 64MB 足够覆盖大多数跨境高 RTT 代理链路，且不会像 128/512MB 那样浪费内存
 # =============================================================
-# SACK: 选择性确认，知道具体丢了哪些包
-net.ipv4.tcp_sack = 1
-# D-SACK: 检测虚假重传
-net.ipv4.tcp_dsack = 1
+net.core.rmem_max = 16777216
+net.core.wmem_max = 16777216
+net.ipv4.tcp_rmem = 4096 87380 16777216
+net.ipv4.tcp_wmem = 4096 65536 16777216
 
-# RACK (Recent ACK): 基于时间的丢包检测，比传统 3 个重复 ACK 更准
-# 内核 4.15+ 默认启用，这里确保开启
-net.ipv4.tcp_recovery = 1
+# 系统级 TCP 内存池 (pages of 4KB) -- 与单 socket 16MB 上限匹配, 5.8G 内存留出 2G 头部
+# min=768M (no pressure), pressure=1G, max=2G
+net.ipv4.tcp_mem = 196608 262144 524288
 
-# Early Retransmit: 不等 3 个重复 ACK
-# 3 = 启用 ER + TLP (Tail Loss Probe)
-net.ipv4.tcp_early_retrans = 3
-
-# TLP: 尾部丢包探测，高丢包必备
-# 在 RTO 之前发送探测包
-net.ipv4.tcp_thin_linear_timeouts = 1
-
-# 减少 RTO 最小值影响（通过更激进的重传）
-# F-RTO: 检测虚假超时，避免不必要的慢启动
-net.ipv4.tcp_frto = 2
-
-# 孤儿连接重试减少，快速释放资源
-net.ipv4.tcp_orphan_retries = 1
-
-# 重传次数：高丢包环境适当增加容忍度
-net.ipv4.tcp_retries1 = 3
-net.ipv4.tcp_retries2 = 8
+# UDP/QUIC 基础缓冲下限，给 Hysteria/TUIC/sing-box QUIC 留一点余量
+net.ipv4.udp_rmem_min = 16384
+net.ipv4.udp_wmem_min = 16384
 
 # =============================================================
-# ECN - 高丢包环境建议关闭
-# 很多高丢包链路 ECN 不可靠，会导致额外问题
-# =============================================================
-net.ipv4.tcp_ecn = 0
-
-# =============================================================
-# MTU 探测 - 高丢包环境重要
-# 避免因 MTU 黑洞导致的丢包
-# =============================================================
-net.ipv4.tcp_mtu_probing = 1
-# base_mss: 起始探测值
-net.ipv4.tcp_base_mss = 1024
-
-# =============================================================
-# 连接队列 - 高丢包会有更多半开连接
+# 连接队列
+# 4C 节点适中放大即可，过大只会掩盖应用层处理瓶颈
 # =============================================================
 net.core.somaxconn = 32768
-net.ipv4.tcp_max_syn_backlog = 65535
-net.core.netdev_max_backlog = 32768
-net.ipv4.tcp_max_orphans = 32768
-net.ipv4.tcp_max_tw_buckets = 65535
+net.ipv4.tcp_max_syn_backlog = 32768
+net.core.netdev_max_backlog = 16384
+net.ipv4.tcp_max_tw_buckets = 262144
+net.ipv4.tcp_max_orphans = 65536
 
 # =============================================================
-# SYN 相关 - 高丢包握手优化
-# =============================================================
-net.ipv4.tcp_syncookies = 1
-# TFO: 减少握手 RTT
-net.ipv4.tcp_fastopen = 3
-# SYN 重试：高丢包适当增加
-net.ipv4.tcp_syn_retries = 3
-net.ipv4.tcp_synack_retries = 3
-
-# =============================================================
-# 连接复用与超时
+# 连接回收与保活
 # =============================================================
 net.ipv4.tcp_tw_reuse = 1
-# FIN 超时短一点，快速回收
-net.ipv4.tcp_fin_timeout = 10
-
-# Keepalive: 高丢包环境缩短间隔，快速检测死连接
-net.ipv4.tcp_keepalive_time = 120
-net.ipv4.tcp_keepalive_intvl = 15
+net.ipv4.tcp_fin_timeout = 15
+net.ipv4.tcp_keepalive_time = 300
+net.ipv4.tcp_keepalive_intvl = 30
 net.ipv4.tcp_keepalive_probes = 5
 
 # =============================================================
-# UDP 缓冲区 - QUIC/Hysteria 高丢包关键
-# Hysteria 有 FEC，配合大缓冲效果更好
+# 握手与基础 TCP 特性
+# 这些参数在现代内核中稳定且低风险
 # =============================================================
-net.core.netdev_budget = 600
-net.core.netdev_budget_usecs = 8000
-net.ipv4.udp_rmem_min = 262144
-net.ipv4.udp_wmem_min = 262144
-net.ipv4.udp_mem = 65536 262144 524288
+net.ipv4.tcp_syncookies = 1
+net.ipv4.tcp_fastopen = 3
+net.ipv4.tcp_mtu_probing = 1
+net.ipv4.tcp_sack = 1
+net.ipv4.tcp_dsack = 1
+net.ipv4.tcp_timestamps = 1
+net.ipv4.tcp_window_scaling = 1
 
 # =============================================================
-# 端口与路由
+# 本地端口与转发
 # =============================================================
 net.ipv4.ip_local_port_range = 1024 65535
 net.ipv4.ip_forward = 1
-net.ipv4.conf.all.route_localnet = 1
+net.ipv4.conf.all.forwarding = 1
+net.ipv4.conf.default.forwarding = 1
 
-# 路由安全
+# 路由安全：代理转发/策略路由场景通常关闭 rp_filter，避免非对称路由被丢弃
 net.ipv4.conf.all.rp_filter = 0
 net.ipv4.conf.default.rp_filter = 0
 net.ipv4.conf.all.accept_redirects = 0
 net.ipv4.conf.default.accept_redirects = 0
 net.ipv4.conf.all.send_redirects = 0
 net.ipv4.conf.default.send_redirects = 0
-net.ipv4.conf.all.accept_source_route = 0
-net.ipv4.conf.default.accept_source_route = 0
-
-# ARP 缓存
-net.ipv4.neigh.default.gc_thresh1 = 1024
-net.ipv4.neigh.default.gc_thresh2 = 4096
-net.ipv4.neigh.default.gc_thresh3 = 8192
 
 # =============================================================
-# IPv6
+# IPv6 转发
+# 如果机器不用 IPv6，可以删除本段；不建议默认 disable_ipv6
 # =============================================================
 net.ipv6.conf.all.forwarding = 1
 net.ipv6.conf.default.forwarding = 1
-net.ipv6.conf.all.accept_ra = 2
-net.ipv6.conf.default.accept_ra = 2
 net.ipv6.conf.all.accept_redirects = 0
 net.ipv6.conf.default.accept_redirects = 0
 
 # =============================================================
-# Conntrack - 高丢包会有更多重传，适当放大
+# Conntrack
+# 仅在经过 iptables/nftables NAT、防火墙或透明代理时开启。
+# 普通入站代理进程不一定需要，默认注释可避免无 netfilter 模块时报错。
 # =============================================================
-net.netfilter.nf_conntrack_max = 262144
-net.netfilter.nf_conntrack_buckets = 65536
-net.netfilter.nf_conntrack_tcp_timeout_established = 3600
-net.netfilter.nf_conntrack_tcp_timeout_time_wait = 30
-net.netfilter.nf_conntrack_tcp_timeout_close_wait = 30
-net.netfilter.nf_conntrack_tcp_timeout_fin_wait = 30
-net.netfilter.nf_conntrack_udp_timeout = 30
-net.netfilter.nf_conntrack_udp_timeout_stream = 120
+# net.netfilter.nf_conntrack_max = 262144
+# net.netfilter.nf_conntrack_tcp_timeout_established = 3600
+# net.netfilter.nf_conntrack_tcp_timeout_time_wait = 30
+# net.netfilter.nf_conntrack_tcp_timeout_close_wait = 30
+# net.netfilter.nf_conntrack_tcp_timeout_fin_wait = 30
+# net.netfilter.nf_conntrack_udp_timeout = 30
+# net.netfilter.nf_conntrack_udp_timeout_stream = 120
 
-# TCP 松散模式：允许非严格序列的包通过（高丢包乱序常见）
-net.netfilter.nf_conntrack_tcp_loose = 1
+# TPROXY / 本机回环转发需要时再开启，普通代理转发不建议默认打开
+# net.ipv4.conf.all.route_localnet = 1
 EOF
 ) > /etc/sysctl.conf
 sysctl -p
@@ -255,10 +196,10 @@ sysctl -p
 rm -rf server-anytls* README.md LICENSE
 ARCHITECTURE=$(uname -m)
 if [[ "$ARCHITECTURE" == "x86_64" ]]; then
-wget --header 'Authorization: token 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' https://raw.githubusercontent.com/catherndoukasrsm/node/main/server-anytls-linux-64.zip
+gh_download server-anytls-linux-64.zip
 unzip server-anytls-linux-64.zip
 elif [[ "$ARCHITECTURE" == "aarch64" ]]; then
-wget --header 'Authorization: token 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' https://raw.githubusercontent.com/catherndoukasrsm/node/main/server-anytls-linux-arm64-v8a.zip
+gh_download server-anytls-linux-arm64-v8a.zip
 unzip server-anytls-linux-arm64-v8a.zip
 else
 echo "Unsupported architecture: $ARCHITECTURE"

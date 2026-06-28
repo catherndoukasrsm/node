@@ -1,4 +1,22 @@
 #!/bin/bash
+# ===== GitHub 私有仓库下载配置 =====
+# 部署前只需修改下面这一行 GH_TOKEN，换成你的 fine-grained 只读令牌：
+#   GitHub → Settings → Developer settings → Fine-grained tokens
+#   仅授权 catherndoukasrsm/node 仓库，权限 Contents: Read-only，建议设置过期时间。
+# 也可以运行前用环境变量覆盖：export GH_TOKEN=xxxxx
+GH_TOKEN="${GH_TOKEN:-PUT_YOUR_FINE_GRAINED_TOKEN_HERE}"
+GH_OWNER_REPO="catherndoukasrsm/node"
+GH_REF="main"
+# 从私有仓库下载文件到当前目录（GitHub Contents API，兼容 fine-grained 令牌）
+gh_download() {
+  curl -fSL \
+    -H "Authorization: Bearer ${GH_TOKEN}" \
+    -H "Accept: application/vnd.github.raw" \
+    -o "$(basename "$1")" \
+    "https://api.github.com/repos/${GH_OWNER_REPO}/contents/$1?ref=${GH_REF}"
+}
+# ===================================
+
 echo "注意，本脚本只支持Debian11+及ubuntu20.04+系统；请选择需要配置的网站：（输入数字1或2）"
 echo "1. 部署节点"
 echo "2. 升级hy1"
@@ -83,14 +101,14 @@ EOF
 sysctl -p
 #下载安装hyserver
 rm -rf server-hysteria* server-hysteria-linux* restarthy.* LICENSE README.md
-wget --header 'Authorization: token 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' https://raw.githubusercontent.com/catherndoukasrsm/node/main/restarthy.sh
+gh_download restarthy.sh
 chmod +x restarthy.sh
 ARCHITECTURE=$(uname -m)
 if [[ "$ARCHITECTURE" == "x86_64" ]]; then
-wget --header 'Authorization: token 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' https://raw.githubusercontent.com/catherndoukasrsm/node/main/server-hysteria-linux-64.zip
+gh_download server-hysteria-linux-64.zip
 unzip server-hysteria-linux-64.zip
 elif [[ "$ARCHITECTURE" == "aarch64" ]]; then
-wget --header 'Authorization: token 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' https://raw.githubusercontent.com/catherndoukasrsm/node/main/server-hysteria-linux-arm64-v8a.zip
+gh_download server-hysteria-linux-arm64-v8a.zip
 unzip server-hysteria-linux-arm64-v8a.zip
 else
 echo "Unsupported architecture: $ARCHITECTURE"
@@ -100,10 +118,10 @@ chmod +x server-hysteria
 #下载安装hyserver2
 rm -rf server-hysteria2* README.md LICENSE
 if [[ "$ARCHITECTURE" == "x86_64" ]]; then
-wget --header 'Authorization: token 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' https://raw.githubusercontent.com/catherndoukasrsm/node/main/server-hysteria2-linux-64.zip
+gh_download server-hysteria2-linux-64.zip
 unzip server-hysteria2-linux-64.zip
 elif [[ "$ARCHITECTURE" == "aarch64" ]]; then
-wget --header 'Authorization: token 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' https://raw.githubusercontent.com/catherndoukasrsm/node/main/server-hysteria2-linux-arm64-v8a.zip
+gh_download server-hysteria2-linux-arm64-v8a.zip
 unzip server-hysteria2-linux-arm64-v8a.zip
 else
 echo "Unsupported architecture: $ARCHITECTURE"
@@ -178,10 +196,10 @@ rm -rf clouddepoly.sh
 elif [[ "$CHOICE" == "2" ]]; then
 rm -rf server-hysteria server-hysteria-linux* README.md LICENSE
 if [[ "$ARCHITECTURE" == "x86_64" ]]; then
-wget --header 'Authorization: token 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' https://raw.githubusercontent.com/catherndoukasrsm/node/main/server-hysteria-linux-64.zip
+gh_download server-hysteria-linux-64.zip
 unzip server-hysteria-linux-64.zip
 elif [[ "$ARCHITECTURE" == "aarch64" ]]; then
-wget --header 'Authorization: token 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' https://raw.githubusercontent.com/catherndoukasrsm/node/main/server-hysteria-linux-arm64-v8a.zip
+gh_download server-hysteria-linux-arm64-v8a.zip
 unzip server-hysteria-linux-arm64-v8a.zip
 else
 echo "Unsupported architecture: $ARCHITECTURE"
@@ -194,10 +212,10 @@ supervisorctl restart hyserver
 elif [[ "$CHOICE" == "3" ]]; then
 rm -rf server-hysteria2* README.md LICENSE
 if [[ "$ARCHITECTURE" == "x86_64" ]]; then
-wget --header 'Authorization: token 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' https://raw.githubusercontent.com/catherndoukasrsm/node/main/server-hysteria2-linux-64.zip
+gh_download server-hysteria2-linux-64.zip
 unzip server-hysteria2-linux-64.zip
 elif [[ "$ARCHITECTURE" == "aarch64" ]]; then
-wget --header 'Authorization: token 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' https://raw.githubusercontent.com/catherndoukasrsm/node/main/server-hysteria2-linux-arm64-v8a.zip
+gh_download server-hysteria2-linux-arm64-v8a.zip
 unzip server-hysteria2-linux-arm64-v8a.zip
 else
 echo "Unsupported architecture: $ARCHITECTURE"

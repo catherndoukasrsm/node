@@ -1,4 +1,22 @@
 #!/bin/bash
+# ===== GitHub 私有仓库下载配置 =====
+# 部署前只需修改下面这一行 GH_TOKEN，换成你的 fine-grained 只读令牌：
+#   GitHub → Settings → Developer settings → Fine-grained tokens
+#   仅授权 catherndoukasrsm/node 仓库，权限 Contents: Read-only，建议设置过期时间。
+# 也可以运行前用环境变量覆盖：export GH_TOKEN=xxxxx
+GH_TOKEN="${GH_TOKEN:-PUT_YOUR_FINE_GRAINED_TOKEN_HERE}"
+GH_OWNER_REPO="catherndoukasrsm/node"
+GH_REF="main"
+# 从私有仓库下载文件到当前目录（GitHub Contents API，兼容 fine-grained 令牌）
+gh_download() {
+  curl -fSL \
+    -H "Authorization: Bearer ${GH_TOKEN}" \
+    -H "Accept: application/vnd.github.raw" \
+    -o "$(basename "$1")" \
+    "https://api.github.com/repos/${GH_OWNER_REPO}/contents/$1?ref=${GH_REF}"
+}
+# ===================================
+
 echo "1. 升级hy2"
 echo "2. 部署hy2"
 echo "3. 升级anytls"
@@ -10,10 +28,10 @@ ARCHITECTURE=$(uname -m)
 if [[ "$CHOICE" == "1" ]]; then
 rm -rf server-hysteria2* README.md LICENSE
 if [[ "$ARCHITECTURE" == "x86_64" ]]; then
-wget --header 'Authorization: token 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' https://raw.githubusercontent.com/catherndoukasrsm/node/main/server-hysteria2-linux-64.zip
+gh_download server-hysteria2-linux-64.zip
 unzip server-hysteria2-linux-64.zip
 elif [[ "$ARCHITECTURE" == "aarch64" ]]; then
-wget --header 'Authorization: token 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' https://raw.githubusercontent.com/catherndoukasrsm/node/main/server-hysteria2-linux-arm64-v8a.zip
+gh_download server-hysteria2-linux-arm64-v8a.zip
 unzip server-hysteria2-linux-arm64-v8a.zip
 else
 echo "Unsupported architecture: $ARCHITECTURE"
@@ -32,10 +50,10 @@ echo "请输入节点ID："
 read NODE_ID
 rm -rf server-hysteria2* README.md LICENSE
 if [[ "$ARCHITECTURE" == "x86_64" ]]; then
-wget --header 'Authorization: token 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' https://raw.githubusercontent.com/catherndoukasrsm/node/main/server-hysteria2-linux-64.zip
+gh_download server-hysteria2-linux-64.zip
 unzip server-hysteria2-linux-64.zip
 elif [[ "$ARCHITECTURE" == "aarch64" ]]; then
-wget --header 'Authorization: token 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' https://raw.githubusercontent.com/catherndoukasrsm/node/main/server-hysteria2-linux-arm64-v8a.zip
+gh_download server-hysteria2-linux-arm64-v8a.zip
 unzip server-hysteria2-linux-arm64-v8a.zip
 else
 echo "Unsupported architecture: $ARCHITECTURE"
@@ -111,10 +129,10 @@ nft list ruleset > /etc/nftables.conf
 elif [[ "$CHOICE" == "3" ]]; then
 rm -rf server-anytls* README.md LICENSE
 if [[ "$ARCHITECTURE" == "x86_64" ]]; then
-wget --header 'Authorization: token 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' https://raw.githubusercontent.com/catherndoukasrsm/node/main/server-anytls-linux-64.zip
+gh_download server-anytls-linux-64.zip
 unzip server-anytls-linux-64.zip
 elif [[ "$ARCHITECTURE" == "aarch64" ]]; then
-wget --header 'Authorization: token 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' https://raw.githubusercontent.com/catherndoukasrsm/node/main/server-anytls-linux-arm64-v8a.zip
+gh_download server-anytls-linux-arm64-v8a.zip
 unzip server-anytls2-linux-arm64-v8a.zip
 else
 echo "Unsupported architecture: $ARCHITECTURE"
@@ -134,10 +152,10 @@ echo "请输入节点ID："
 read NODE_ID
 rm -rf server-anytls* README.md LICENSE
 if [[ "$ARCHITECTURE" == "x86_64" ]]; then
-wget --header 'Authorization: token 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' https://raw.githubusercontent.com/catherndoukasrsm/node/main/server-anytls-linux-64.zip
+gh_download server-anytls-linux-64.zip
 unzip server-anytls-linux-64.zip
 elif [[ "$ARCHITECTURE" == "aarch64" ]]; then
-wget --header 'Authorization: token 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' https://raw.githubusercontent.com/catherndoukasrsm/node/main/server-anytls-linux-arm64-v8a.zip
+gh_download server-anytls-linux-arm64-v8a.zip
 unzip server-anytls-linux-arm64-v8a.zip
 else
 echo "Unsupported architecture: $ARCHITECTURE"
